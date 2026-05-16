@@ -1,5 +1,10 @@
 # build output
 dist/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+!packages/checkin/dist/
+!packages/checkin/dist/**
 # generated types
 .astro/
 

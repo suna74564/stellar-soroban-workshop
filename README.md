@@ -1,191 +1,130 @@
-# Soroban Smart Contract Workshop
+# Stellar Soroban Hackathon Starter
 
-Bu proje, Stellar Soroban ile iki smart contract ve bir Astro frontend ornegi icerir.
+Bu repo, Stellar uzerinde hizli prototip gelistirmek icin hazirlanmis bir baslangic sablonudur. Frontend, backend ve Soroban smart contract katmanlari birlikte gelir.
 
-Kaynak dokuman: <https://developers.stellar.org/docs/build/smart-contracts/getting-started>
+## Repoda neler var?
 
-## Proje Yapisi
+- `frontend/` - React, TypeScript ve Vite ile hazir dApp arayuzu
+- `backend/` - Node.js ve Express ile Horizon Testnet account API
+- `contracts/checkin/` - Freighter ile imzalanan Soroban check-in kontrati
+- `contracts/hello-world/` ve `contracts/increment/` - temel workshop kontrat ornekleri
+
+## Ana dApp: Proof of Build
+
+`checkin` kontrati, bagli cüzdan adresinin zincir uzerindeki check-in sayisini ve toplam check-in sayisini tutar.
+
+- `check_in(user: Address) -> u32`
+- `get_count(user: Address) -> u32`
+- `total() -> u32`
+
+Testnet contract ID:
 
 ```text
-.
-├── contracts
-│   ├── hello-world
-│   │   └── src
-│   │       ├── lib.rs
-│   │       └── test.rs
-│   └── increment
-│       └── src
-│           ├── lib.rs
-│           └── test.rs
-├── frontend
-│   ├── packages
-│   │   └── hello_world
-│   └── src
-│       └── pages
-│           └── index.astro
-├── Cargo.toml
-└── Cargo.lock
+CATRUM6EPBPN2475AO42CXU7TDDUZ2TGFS2IY3QOQY5JB53I3HWIDO44
 ```
 
-## Ortam
+## Kurulum
 
-Kullanilan surumler:
+Gerekenler:
 
-```bash
-rustc --version
-cargo --version
-stellar --version
-node --version
-npm --version
-```
+- Rust
+- Stellar CLI
+- Node.js 22+
+- Freighter browser extension
 
-Bu calismada dogrulanan surumler:
-
-- Rust: `1.95.0`
-- Cargo: `1.95.0`
-- Stellar CLI: `26.0.0`
-- Node.js: `v24.14.1`
-- npm: `11.11.0`
-
-Soroban wasm hedefi:
+Soroban hedefi:
 
 ```bash
 rustup target add wasm32v1-none
 ```
 
-Testnet varsayilan ag olarak ayarlandi:
+Stellar testnet:
 
 ```bash
 stellar network use testnet
 ```
 
-## Contract'lar
+## Smart Contract
 
-Hello World kontrati:
-
-- Kaynak: `contracts/hello-world/src/lib.rs`
-- Test: `contracts/hello-world/src/test.rs`
-- WASM: `target/wasm32v1-none/release/hello_world.wasm`
-- Testnet contract ID: `CDUMW6G4GTD3AVV5YALXDBWVSAEE6LFFQWU24KV5H3NVBMNI5C5URXPN`
-- Alias: `hello_world`
-
-Increment kontrati:
-
-- Kaynak: `contracts/increment/src/lib.rs`
-- Test: `contracts/increment/src/test.rs`
-- WASM: `target/wasm32v1-none/release/increment.wasm`
-- Testnet contract ID: `CBJOJ47M4QHYMRKBJRSM5G7D434ZKHRYBREGZ2TRNIMA5AEAKFUPQS5E`
-- Alias: `increment`
-
-## Test ve Build
+Test:
 
 ```bash
 cargo test
+```
+
+Build:
+
+```bash
 stellar contract build
 ```
 
-Beklenen WASM dosyalari:
-
-```text
-target/wasm32v1-none/release/hello_world.wasm
-target/wasm32v1-none/release/increment.wasm
-```
-
-## Testnet Deploy ve Invoke
-
-Source account:
+Checkin binding yeniden uretmek gerekirse:
 
 ```bash
-stellar keys generate alice --network testnet --fund
-stellar keys address alice
-```
-
-Bu calismada uretilen public key:
-
-```text
-GDZ3G4V5YVB2766LUXAXBUVOMWSXP552FWTKSIOA7DVIH2YST3NDPG6G
-```
-
-Hello World invoke:
-
-```bash
-stellar contract invoke \
-  --id hello_world \
-  --source-account alice \
+cd frontend
+stellar contract bindings typescript \
   --network testnet \
-  -- \
-  hello --to Stellar
-```
-
-Cikti:
-
-```json
-["Hello","Stellar"]
-```
-
-Increment invoke:
-
-```bash
-stellar contract invoke \
-  --id increment \
-  --source-account alice \
-  --network testnet \
-  -- \
-  increment
-```
-
-Ardisik cagri ciktilari:
-
-```text
-1
-2
-3
+  --contract-id checkin \
+  --output-dir packages/checkin
+cd packages/checkin
+npm install
+npm run build
 ```
 
 ## Frontend
 
-Astro frontend `frontend/` klasorundedir. Hello World binding paketi su komutla uretildi:
-
-```bash
-stellar contract bindings typescript \
-  --network testnet \
-  --contract-id hello_world \
-  --output-dir packages/hello_world
-```
-
-Binding paketi build edildi:
-
-```bash
-cd frontend/packages/hello_world
-npm install
-npm run build
-```
-
-Frontend root package'i, binding'i local file dependency olarak kullanir:
-
-```json
-"hello_world": "file:packages/hello_world"
-```
-
-Frontend build:
-
 ```bash
 cd frontend
 npm install
-npm run build
-```
-
-Dev server:
-
-```bash
-cd frontend
-npm run dev -- --host 0.0.0.0
+npm run dev
 ```
 
 Tarayici:
 
 ```text
-http://localhost:4321/
+http://localhost:4321
 ```
 
-Sayfada `Hello Devs!` gorunur.
+Frontend ortam degiskenleri:
+
+```bash
+VITE_API_URL=http://localhost:3001
+VITE_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
+```
+
+## Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+Endpoint'ler:
+
+```text
+GET /api/health
+GET /api/account/:address
+```
+
+Backend varsayilan olarak Horizon Testnet'i kullanir:
+
+```text
+https://horizon-testnet.stellar.org
+```
+
+## Freighter
+
+Freighter'i tarayiciya kurup Testnet moduna alin. Frontend uzerinden cüzdan baglandiginda:
+
+- public key alinir
+- Freighter network bilgisi okunur
+- backend uzerinden XLM bakiyesi ve account detaylari cekilir
+- `check_in` isleminde Freighter transaction imzasi istenir
+
+## Kaynaklar
+
+- Stellar Docs: <https://developers.stellar.org/docs>
+- Freighter Docs: <https://docs.freighter.app/docs>
+- Stellar Expert Testnet Explorer: <https://stellar.expert/explorer/testnet>
+- Stellar Lab: <https://lab.stellar.org>
