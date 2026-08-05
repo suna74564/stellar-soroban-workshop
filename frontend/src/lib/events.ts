@@ -54,6 +54,7 @@ function parseCheckinEvent(event: Api.EventResponse): CheckinEvent | null {
     user,
     userCount: readU32(values[0]),
     totalCount: readU32(values[1]),
+    badgeScore: readU32(values[2]),
   };
 }
 

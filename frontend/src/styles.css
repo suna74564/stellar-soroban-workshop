@@ -357,7 +357,7 @@ button:disabled {
 .terminal-copy code {
   display: block;
   max-width: 700px;
-  margin-top: 18px;
+  margin-top: 12px;
   border: 2px solid var(--line);
   border-radius: 8px;
   background: #15120f;
@@ -366,6 +366,10 @@ button:disabled {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.92rem;
   overflow-wrap: anywhere;
+}
+
+.badge-label {
+  margin-top: 18px;
 }
 
 .terminal-action {
@@ -444,6 +448,13 @@ button:disabled {
   margin-top: 8px;
   color: var(--ink);
   overflow-wrap: anywhere;
+}
+
+.status-ticket small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-weight: 800;
 }
 
 .status-ticket a {
@@ -608,7 +619,7 @@ dd {
   }
 
   .rail-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .rail-metrics div {

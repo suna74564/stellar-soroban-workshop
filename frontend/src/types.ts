@@ -28,6 +28,11 @@ export type ContractStats = {
   totalCount: number;
 };
 
+export type BadgeStats = {
+  score: number;
+  totalBadges: number;
+};
+
 export type WalletOption = {
   id: string;
   name: string;
@@ -73,4 +78,5 @@ export type CheckinEvent = {
   user: string;
   userCount: number;
   totalCount: number;
+  badgeScore: number;
 };

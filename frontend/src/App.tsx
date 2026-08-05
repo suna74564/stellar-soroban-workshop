@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchAccount } from "./lib/account";
+import { BADGE_CONTRACT_ID, createBadgeClient } from "./lib/badge";
 import {
   CHECKIN_CONTRACT_ID,
   NETWORK_PASSPHRASE,
@@ -19,6 +20,7 @@ import {
 } from "./lib/checkin";
 import { classifyError, ensureSpendableTestnetBalance } from "./lib/errors";
 import { fetchCheckinEvents } from "./lib/events";
+import { badgeTier, mergeCheckinEvents, nextTierProgress } from "./lib/reputation";
 import {
   assertWalletIsOnTestnet,
   connectWalletKit,
@@ -31,6 +33,7 @@ import {
 import type {
   AccountDetails,
   AppErrorType,
+  BadgeStats,
   CheckinEvent,
   ContractStats,
   NetworkDetails,
@@ -60,18 +63,6 @@ function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 }
 
-function mergeEvents(current: CheckinEvent[], incoming: CheckinEvent[]) {
-  const byId = new Map<string, CheckinEvent>();
-
-  for (const event of [...incoming, ...current]) {
-    byId.set(event.id, event);
-  }
-
-  return Array.from(byId.values())
-    .sort((a, b) => b.ledger - a.ledger || b.id.localeCompare(a.id))
-    .slice(0, 8);
-}
-
 function transactionUrl(hash?: string) {
   if (!hash) return "";
   return `https://stellar.expert/explorer/testnet/tx/${hash}`;
@@ -85,6 +76,10 @@ export default function App() {
   const [stats, setStats] = useState<ContractStats>({
     walletCount: 0,
     totalCount: 0,
+  });
+  const [badgeStats, setBadgeStats] = useState<BadgeStats>({
+    score: 0,
+    totalBadges: 0,
   });
   const [events, setEvents] = useState<CheckinEvent[]>([]);
   const [latestLedger, setLatestLedger] = useState<number | null>(null);
@@ -101,6 +96,8 @@ export default function App() {
   const address = wallet?.address ?? "";
   const connected = Boolean(wallet);
   const client = useMemo(() => createCheckinClient(address), [address]);
+  const currentTier = badgeTier(badgeStats.score);
+  const tierProgress = nextTierProgress(badgeStats.score);
 
   const refreshWalletOptions = useCallback(async () => {
     try {
@@ -123,6 +120,19 @@ export default function App() {
     });
   }, []);
 
+  const refreshBadge = useCallback(async (walletAddress: string) => {
+    const readClient = createBadgeClient(walletAddress);
+    const [scoreTx, totalBadgesTx] = await Promise.all([
+      readClient.score({ user: walletAddress }),
+      readClient.total_badges(),
+    ]);
+
+    setBadgeStats({
+      score: Number(scoreTx.result),
+      totalBadges: Number(totalBadgesTx.result),
+    });
+  }, []);
+
   const refreshEvents = useCallback(async (quiet = true) => {
     setIsEventSyncing(true);
 
@@ -132,7 +142,7 @@ export default function App() {
       setLatestLedger(nextEvents.latestLedger);
 
       if (nextEvents.events.length > 0) {
-        setEvents((current) => mergeEvents(current, nextEvents.events));
+        setEvents((current) => mergeCheckinEvents(current, nextEvents.events));
         if (!quiet) {
           setStatus(`${nextEvents.events.length} contract event synced`);
         }
@@ -158,6 +168,7 @@ export default function App() {
           fetchAccount(walletAddress),
           getWalletNetworkDetails().catch(() => TESTNET_DETAILS),
           refreshContract(walletAddress),
+          refreshBadge(walletAddress),
         ]);
 
         setAccount(nextAccount);
@@ -169,7 +180,7 @@ export default function App() {
         setIsBusy(false);
       }
     },
-    [address, refreshContract],
+    [address, refreshBadge, refreshContract],
   );
 
   useEffect(() => {
@@ -220,6 +231,7 @@ export default function App() {
     setNetwork(TESTNET_DETAILS);
     setAccount(null);
     setStats({ walletCount: 0, totalCount: 0 });
+    setBadgeStats({ score: 0, totalBadges: 0 });
     setTransaction(initialTransaction);
     setError(null);
     setStatus("Wallet disconnected");
@@ -335,6 +347,11 @@ export default function App() {
             <strong>{stats.walletCount}</strong>
             <small>check-ins</small>
           </div>
+          <div>
+            <span>Reputation</span>
+            <strong>{badgeStats.score}</strong>
+            <small>{currentTier}</small>
+          </div>
         </div>
 
         <div className="rail-actions">
@@ -405,6 +422,8 @@ export default function App() {
             <span className="terminal-label">Soroban contract</span>
             <strong>Wallet Check-in</strong>
             <code>{CHECKIN_CONTRACT_ID}</code>
+            <span className="terminal-label badge-label">Badge contract</span>
+            <code>{BADGE_CONTRACT_ID}</code>
           </div>
 
           <div className="terminal-action">
@@ -438,6 +457,7 @@ export default function App() {
             <div>
               <span>Transaction</span>
               <strong>{transaction.label}</strong>
+              <small>{status}</small>
               {transaction.hash && (
                 <a href={transactionUrl(transaction.hash)} target="_blank" rel="noreferrer">
                   {shortAddress(transaction.hash)}
@@ -448,9 +468,11 @@ export default function App() {
           </article>
 
           <article className="total-proof">
-            <span>Total contract proofs</span>
-            <strong>{stats.totalCount}</strong>
-            <small>{status}</small>
+            <span>Badge holders</span>
+            <strong>{badgeStats.totalBadges}</strong>
+            <small>
+              {stats.totalCount} total proofs / {tierProgress}% tier progress
+            </small>
           </article>
         </section>
 
@@ -507,7 +529,7 @@ export default function App() {
                 >
                   <span>{shortAddress(event.user)}</span>
                   <strong>
-                    #{event.userCount} wallet / #{event.totalCount} total
+                    #{event.userCount} wallet / score {event.badgeScore}
                   </strong>
                   <small>Ledger {event.ledger}</small>
                 </a>
