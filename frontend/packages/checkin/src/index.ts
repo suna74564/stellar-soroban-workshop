@@ -34,11 +34,12 @@ if (typeof window !== "undefined") {
 export const networks = {
   testnet: {
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CATRUM6EPBPN2475AO42CXU7TDDUZ2TGFS2IY3QOQY5JB53I3HWIDO44",
+    contractId: "CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE",
   }
 } as const
 
 export type DataKey = {tag: "User", values: readonly [string]} | {tag: "Total", values: void};
+
 
 export interface Client {
   /**
@@ -78,6 +79,7 @@ export class Client extends ContractClient {
   constructor(public readonly options: ContractClientOptions) {
     super(
       new ContractSpec([ "AAAAAgAAAAAAAAAAAAAAB0RhdGFLZXkAAAAAAgAAAAEAAAAAAAAABFVzZXIAAAABAAAAEwAAAAAAAAAAAAAABVRvdGFsAAAA",
+        "AAAABQAAAAAAAAAAAAAAB0NoZWNrSW4AAAAAAQAAAAhjaGVja19pbgAAAAMAAAAAAAAABHVzZXIAAAATAAAAAQAAAAAAAAAKdXNlcl9jb3VudAAAAAAABAAAAAAAAAAAAAAAC3RvdGFsX2NvdW50AAAAAAQAAAAAAAAAAQ==",
         "AAAAAAAAADBSZXR1cm5zIGFsbCBjaGVjay1pbnMgcmVjb3JkZWQgYnkgdGhpcyBjb250cmFjdC4AAAAFdG90YWwAAAAAAAAAAAAAAQAAAAQ=",
         "AAAAAAAAAElSZWNvcmRzIGFuIGF1dGhlbnRpY2F0ZWQgd2FsbGV0IGNoZWNrLWluIGFuZCByZXR1cm5zIHRoYXQgd2FsbGV0J3MgY291bnQuAAAAAAAACGNoZWNrX2luAAAAAQAAAAAAAAAEdXNlcgAAABMAAAABAAAABA==",
         "AAAAAAAAAC9SZXR1cm5zIGhvdyBtYW55IHRpbWVzIGEgd2FsbGV0IGhhcyBjaGVja2VkIGluLgAAAAAJZ2V0X2NvdW50AAAAAAAAAQAAAAAAAAAEdXNlcgAAABMAAAABAAAABA==" ]),

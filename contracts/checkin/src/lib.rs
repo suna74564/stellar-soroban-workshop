@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{contract, contractevent, contractimpl, contracttype, Address, Env};
 
 #[contract]
 pub struct CheckinContract;
@@ -9,6 +9,15 @@ pub struct CheckinContract;
 pub enum DataKey {
     User(Address),
     Total,
+}
+
+#[contractevent(data_format = "vec")]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CheckIn {
+    #[topic]
+    pub user: Address,
+    pub user_count: u32,
+    pub total_count: u32,
 }
 
 #[contractimpl]
@@ -27,6 +36,13 @@ impl CheckinContract {
         env.storage().instance().set(&user_key, &user_count);
         env.storage().instance().set(&DataKey::Total, &total_count);
         env.storage().instance().extend_ttl(50, 100);
+
+        CheckIn {
+            user,
+            user_count,
+            total_count,
+        }
+        .publish(&env);
 
         user_count
     }
