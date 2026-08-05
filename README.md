@@ -2,7 +2,7 @@
 
 ## Project Name
 
-- ProofBull
+- ProofBull Level 2: Live Check-in
 
 ## About Me
 
@@ -16,13 +16,47 @@
 
 ## Project Details
 
-ProofBull is a Stellar Soroban dApp for on-chain event and builder check-ins. Users connect their Freighter wallet, view their Stellar Testnet account details, and record a signed check-in transaction on a Soroban smart contract. The contract stores each wallet's check-in count and the total check-in count. The frontend is built with React, TypeScript, and Vite. The backend uses Node.js and Express to fetch account information from Stellar Horizon Testnet.
+ProofBull is a Stellar Soroban dApp for on-chain event and builder check-ins. Users connect with StellarWalletsKit, choose from multiple Stellar wallets, view Testnet account details, and record a signed check-in transaction on a Soroban smart contract. The contract stores each wallet's check-in count, the total check-in count, and publishes a `CheckIn` event for live frontend synchronization.
+
+The frontend is built with React, TypeScript, and Vite. The backend uses Node.js and Express to fetch account information from Stellar Horizon Testnet. The activity feed polls Soroban RPC events with a cursor so newly confirmed contract calls appear in the UI.
 
 Testnet contract ID:
 
 ```text
-CATRUM6EPBPN2475AO42CXU7TDDUZ2TGFS2IY3QOQY5JB53I3HWIDO44
+CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE
 ```
+
+Verified contract call transaction:
+
+```text
+830dce6f4a2a810a4d0744b8c905fc3285cd60f82dc4eed9bf16ec43e313564a
+```
+
+Explorer links:
+
+- Contract: <https://stellar.expert/explorer/testnet/contract/CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE>
+- Contract call: <https://stellar.expert/explorer/testnet/tx/830dce6f4a2a810a4d0744b8c905fc3285cd60f82dc4eed9bf16ec43e313564a>
+
+## Level 2 Checklist
+
+- Multi-wallet connection with StellarWalletsKit
+- Wallet options visible in the app
+- Handles wallet not found, rejected signature, wrong network, and insufficient balance states
+- Contract deployed on Stellar Testnet
+- Frontend calls `check_in(user)` on the deployed contract
+- Transaction status shows signature, pending, success, and failed states
+- Live activity feed reads `CheckIn` events from Soroban RPC
+- Contract tests verify storage and event emission
+
+## Screenshots
+
+Wallet options available:
+
+![Wallet options](frontend/public/wallet-options-screenshot.png)
+
+Mobile layout:
+
+![Mobile wallet options](frontend/public/wallet-options-mobile.png)
 
 ## Vision
 
@@ -34,8 +68,9 @@ ProofBull aims to make blockchain participation easy, visible, and useful. Many 
 2. Add smart contract functions: `check_in(user)`, `get_count(user)`, and `total()`.
 3. Require wallet authorization inside `check_in(user)` so only the wallet owner can record their own check-in.
 4. Write tests for first check-in, repeated check-ins, multiple users, and total count updates.
-5. Build the React frontend with Freighter wallet connection, account details, XLM balance, and check-in button. Add an Express backend endpoint for Horizon account data.
-6. Build, generate TypeScript contract bindings, deploy the contract to Stellar Testnet, and connect the deployed contract ID to the frontend.
+5. Build the React frontend with StellarWalletsKit, account details, XLM balance, transaction status, and check-in button. Add an Express backend endpoint for Horizon account data.
+6. Publish `CheckIn` events from the contract and read them from the frontend through Soroban RPC.
+7. Build, generate TypeScript contract bindings, deploy the contract to Stellar Testnet, and connect the deployed contract ID to the frontend.
 
 ## Personal Story
 
@@ -49,7 +84,7 @@ I started this project to understand how a real Stellar dApp works from contract
 - Stellar CLI
 - Node.js 22+
 - npm
-- Freighter browser extension
+- A Stellar wallet supported by StellarWalletsKit
 
 ### Clone the Repository
 
@@ -70,6 +105,20 @@ stellar network use testnet
 ```bash
 cargo test
 stellar contract build
+```
+
+### Generate TypeScript Bindings
+
+```bash
+stellar contract bindings typescript \
+  --contract-id CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE \
+  --network testnet \
+  --output-dir frontend/packages/checkin \
+  --overwrite
+
+cd frontend/packages/checkin
+npm install
+npm run build
 ```
 
 ### Run the Backend
@@ -111,12 +160,13 @@ http://localhost:4321
 
 ### Use the App
 
-1. Install Freighter.
-2. Switch Freighter to Testnet.
+1. Install or open a StellarWalletsKit-supported wallet.
+2. Switch the wallet to Testnet.
 3. Open the frontend.
-4. Connect your wallet.
+4. Choose a wallet.
 5. Click `Check in on-chain`.
-6. Confirm the transaction in Freighter.
+6. Confirm the transaction in your wallet.
+7. Watch the transaction tracker and live contract event feed update.
 
 ## Smart Contract
 
@@ -134,6 +184,12 @@ get_count(user: Address) -> u32
 total() -> u32
 ```
 
+Event:
+
+```text
+CheckIn(check_in, user) -> [user_count, total_count]
+```
+
 ## Tech Stack
 
 - Stellar Soroban
@@ -143,8 +199,10 @@ total() -> u32
 - Vite
 - Node.js
 - Express
-- Freighter API
+- StellarWalletsKit
+- Stellar SDK
 - Stellar Horizon Testnet
+- Soroban RPC events
 
 ## Visual Concept
 

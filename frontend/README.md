@@ -20,7 +20,8 @@ VITE_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
 
 ## Paketler
 
-- `@stellar/freighter-api`
+- `@creit.tech/stellar-wallets-kit`
+- `@stellar/stellar-base`
 - `@stellar/stellar-sdk`
 - `checkin` local generated Soroban binding
 - `react`
