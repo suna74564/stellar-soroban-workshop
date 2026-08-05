@@ -1,0 +1,56 @@
+name: Deploy Contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: Stellar network name configured in Stellar CLI
+        required: true
+        default: testnet
+      deploy:
+        description: Set to true to deploy after tests and build
+        required: true
+        default: "false"
+
+jobs:
+  build-and-deploy:
+    name: Test, build, and optional deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+
+      - name: Run contract tests
+        run: cargo test
+
+      - name: Build contract WASM
+        run: cargo build --target wasm32v1-none --release
+
+      - name: Install Stellar CLI
+        if: ${{ inputs.deploy == 'true' }}
+        run: cargo install --locked stellar-cli
+
+      - name: Deploy badge contract
+        if: ${{ inputs.deploy == 'true' }}
+        env:
+          STELLAR_SECRET_KEY: ${{ secrets.STELLAR_SECRET_KEY }}
+        run: |
+          stellar contract deploy \
+            --wasm target/wasm32v1-none/release/badge.wasm \
+            --source-account "$STELLAR_SECRET_KEY" \
+            --network "${{ inputs.network }}"
+
+      - name: Deploy check-in contract
+        if: ${{ inputs.deploy == 'true' }}
+        env:
+          STELLAR_SECRET_KEY: ${{ secrets.STELLAR_SECRET_KEY }}
+        run: |
+          stellar contract deploy \
+            --wasm target/wasm32v1-none/release/checkin.wasm \
+            --source-account "$STELLAR_SECRET_KEY" \
+            --network "${{ inputs.network }}"
