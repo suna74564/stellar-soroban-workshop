@@ -1,0 +1,47 @@
+ProofBull Level 3 Test Output
+
+$ cargo test
+
+running 3 tests
+test test::does_not_double_count_existing_badge_holder ... ok
+test test::records_badge_score_and_event ... ok
+test test::caps_score_at_one_hundred ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+
+running 3 tests
+test test::configures_badge_contract ... ok
+test test::test_check_in ... ok
+test test::check_in_updates_badge_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 1 test
+test test::test ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 1 test
+test test::test_increment ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+$ cd frontend && npm test
+
+> frontend@0.0.1 test
+> vitest run
+
+
+ RUN  v3.2.4 /Users/elifvural/Desktop/stellar-soroban-workshop/frontend
+
+ ✓ src/lib/reputation.test.ts (4 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:03:20
+   Duration  221ms (transform 18ms, setup 0ms, collect 15ms, tests 2ms, environment 0ms, prepare 39ms)
+

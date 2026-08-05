@@ -1,8 +1,15 @@
 # ProofBull
 
-## Project Name
+## Level 3 - Orange Belt Submission
 
-- ProofBull Level 2: Live Check-in
+ProofBull is a production-ready Stellar Soroban dApp for live builder check-ins and wallet reputation. Users connect a Stellar Testnet wallet, call a deployed check-in contract from the frontend, and watch the app synchronize transaction status, live contract events, and a reputation score in real time.
+
+The Level 3 version adds a second Soroban contract for reputation badges. The check-in contract calls the badge contract after each successful check-in, so the app demonstrates inter-contract communication, event streaming, tests, CI/CD workflows, mobile responsive UI, and production-style project structure.
+
+## Live Demo
+
+- GitHub Pages: <https://suna74564.github.io/stellar-soroban-workshop/>
+- Demo video: pending 1-2 minute recording
 
 ## About Me
 
@@ -11,70 +18,140 @@
 - Interested in hackathon products, Web3 onboarding, and wallet-based user flows
 - Learning Rust smart contracts through practical projects
 - Building with React, TypeScript, Node.js, and Express
-- Exploring how blockchain can create simple, useful public records
-- Goal: create clear starter projects that help new builders move faster
 
-## Project Details
+## Deployed Contracts
 
-ProofBull is a Stellar Soroban dApp for on-chain event and builder check-ins. Users connect with StellarWalletsKit, choose from multiple Stellar wallets, view Testnet account details, and record a signed check-in transaction on a Soroban smart contract. The contract stores each wallet's check-in count, the total check-in count, and publishes a `CheckIn` event for live frontend synchronization.
-
-The frontend is built with React, TypeScript, and Vite. The backend uses Node.js and Express to fetch account information from Stellar Horizon Testnet. The activity feed polls Soroban RPC events with a cursor so newly confirmed contract calls appear in the UI.
-
-Testnet contract ID:
+Check-in contract:
 
 ```text
-CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE
+CDX47DA7XCWBN7LUQ4Z3NCVPGQ3D7GOLWJPR6EPT6SU4QU3V7DYFOAM5
 ```
 
-Verified contract call transaction:
+Reputation badge contract:
 
 ```text
-830dce6f4a2a810a4d0744b8c905fc3285cd60f82dc4eed9bf16ec43e313564a
+CB5PJLAQUHUT4I23NLKNJQWCAQ5X6KARLP66WGAHK6IY2OBZ4WW3ZIUQ
+```
+
+Verified contract interaction transaction:
+
+```text
+cf4bdadb55d15cb720691a7b580f7bc18f9f9aa986a4ff229fb2fb7a08f48b36
+```
+
+Badge configuration transaction:
+
+```text
+6dc37fe5e283c52e4ffdc848c29c680ab4b7ede66b1253c68970856198e11309
 ```
 
 Explorer links:
 
-- Contract: <https://stellar.expert/explorer/testnet/contract/CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE>
-- Contract call: <https://stellar.expert/explorer/testnet/tx/830dce6f4a2a810a4d0744b8c905fc3285cd60f82dc4eed9bf16ec43e313564a>
+- Check-in contract: <https://stellar.expert/explorer/testnet/contract/CDX47DA7XCWBN7LUQ4Z3NCVPGQ3D7GOLWJPR6EPT6SU4QU3V7DYFOAM5>
+- Badge contract: <https://stellar.expert/explorer/testnet/contract/CB5PJLAQUHUT4I23NLKNJQWCAQ5X6KARLP66WGAHK6IY2OBZ4WW3ZIUQ>
+- Contract call transaction: <https://stellar.expert/explorer/testnet/tx/cf4bdadb55d15cb720691a7b580f7bc18f9f9aa986a4ff229fb2fb7a08f48b36>
 
-## Level 2 Checklist
+## Level 3 Checklist
 
-- Multi-wallet connection with StellarWalletsKit
-- Wallet options visible in the app
-- Handles wallet not found, rejected signature, wrong network, and insufficient balance states
-- Contract deployed on Stellar Testnet
-- Frontend calls `check_in(user)` on the deployed contract
-- Transaction status shows signature, pending, success, and failed states
-- Live activity feed reads `CheckIn` events from Soroban RPC
-- Contract tests verify storage and event emission
+- Advanced smart contract development with two Soroban contracts
+- Inter-contract communication from `checkin` to `badge`
+- Event streaming through Soroban RPC with live frontend updates
+- CI workflow for contract tests, contract build, frontend tests, and frontend build
+- GitHub Pages deployment workflow for the production frontend
+- Manual contract deployment workflow with GitHub Actions
+- Mobile responsive frontend
+- Loading, wallet, transaction, and contract error states
+- Contract tests and frontend tests
+- Complete documentation and demo notes
+- 10+ meaningful commits
 
 ## Screenshots
 
-Wallet options available:
+Wallet options and desktop UI:
 
 ![Wallet options](frontend/public/wallet-options-screenshot.png)
 
-Mobile layout:
+Mobile responsive UI:
 
 ![Mobile wallet options](frontend/public/wallet-options-mobile.png)
 
-## Vision
+Test output with passing tests:
 
-ProofBull aims to make blockchain participation easy, visible, and useful. Many people join workshops, hackathons, and community events, but their participation disappears after the event ends. ProofBull turns participation into a simple on-chain record. A wallet can show that someone joined, built, learned, and kept showing up. This can help communities reward active members, track engagement, and create trusted proof of attendance without complex tools. The long-term vision is to help new builders cross into Web3 with confidence and create abundance through open, verifiable participation records.
+![Test output](docs/test-output-screenshot.png)
 
-## Development Plan
+CI pipeline:
 
-1. Create the Soroban smart contract with storage keys for each user wallet and a total check-in counter.
-2. Add smart contract functions: `check_in(user)`, `get_count(user)`, and `total()`.
-3. Require wallet authorization inside `check_in(user)` so only the wallet owner can record their own check-in.
-4. Write tests for first check-in, repeated check-ins, multiple users, and total count updates.
-5. Build the React frontend with StellarWalletsKit, account details, XLM balance, transaction status, and check-in button. Add an Express backend endpoint for Horizon account data.
-6. Publish `CheckIn` events from the contract and read them from the frontend through Soroban RPC.
-7. Build, generate TypeScript contract bindings, deploy the contract to Stellar Testnet, and connect the deployed contract ID to the frontend.
+![CI workflow](docs/ci-workflow-screenshot.png)
 
-## Personal Story
+## Architecture
 
-I started this project to understand how a real Stellar dApp works from contract to frontend. Instead of only writing a simple smart contract, I wanted to connect the full flow: wallet login, account data, smart contract storage, and a user action. ProofBull helped me learn how Freighter, Horizon, Soroban, Rust, React, and Express work together. The project is small, but it represents a complete builder journey.
+```text
+frontend/
+  src/
+    lib/
+      checkin.ts       TypeScript client for check-in contract
+      badge.ts         TypeScript client for badge contract
+      events.ts        Soroban RPC event polling
+      reputation.ts    UI reputation helpers and tests
+contracts/
+  checkin/             Main wallet check-in contract
+  badge/               Reputation scoring contract
+backend/
+  server.js            Horizon account lookup API
+.github/workflows/
+  ci.yml               Tests and builds contracts/frontend
+  pages.yml            Deploys frontend to GitHub Pages
+  contracts.yml        Manual contract deployment workflow
+```
+
+## Smart Contracts
+
+### Check-in Contract
+
+Path:
+
+```text
+contracts/checkin
+```
+
+Functions:
+
+```text
+check_in(user: Address) -> u32
+get_count(user: Address) -> u32
+total() -> u32
+configure_badge(admin: Address, badge_contract: Address) -> Address
+badge_contract() -> Option<Address>
+```
+
+Events:
+
+```text
+CheckIn(check_in, user) -> [user_count, total_count, badge_score]
+BadgeLinked(badge_linked, admin) -> badge_contract
+```
+
+### Badge Contract
+
+Path:
+
+```text
+contracts/badge
+```
+
+Functions:
+
+```text
+record(user: Address, checkins: u32, total_checkins: u32) -> u32
+score(user: Address) -> u32
+total_badges() -> u32
+```
+
+Event:
+
+```text
+BadgeUpdated(badge_updated, user) -> [score, total_badges]
+```
 
 ## Installation
 
@@ -111,14 +188,16 @@ stellar contract build
 
 ```bash
 stellar contract bindings typescript \
-  --contract-id CAS6QJJ6OJDVAFVYDOXUPGRXGFJQ5WKEDS3DRS4MNWHAFY2ULXN2TKLE \
+  --contract-id CDX47DA7XCWBN7LUQ4Z3NCVPGQ3D7GOLWJPR6EPT6SU4QU3V7DYFOAM5 \
   --network testnet \
   --output-dir frontend/packages/checkin \
   --overwrite
 
-cd frontend/packages/checkin
-npm install
-npm run build
+stellar contract bindings typescript \
+  --contract-id CB5PJLAQUHUT4I23NLKNJQWCAQ5X6KARLP66WGAHK6IY2OBZ4WW3ZIUQ \
+  --network testnet \
+  --output-dir frontend/packages/badge \
+  --overwrite
 ```
 
 ### Run the Backend
@@ -158,7 +237,43 @@ Frontend runs on:
 http://localhost:4321
 ```
 
-### Use the App
+## Tests
+
+Run all contract tests:
+
+```bash
+cargo test
+```
+
+Run frontend tests:
+
+```bash
+cd frontend
+npm test
+```
+
+Build frontend:
+
+```bash
+cd frontend
+npm run build
+```
+
+## Deployment
+
+Local contract deployment helper:
+
+```bash
+NETWORK=testnet SOURCE_ACCOUNT=alice ./scripts/deploy-level3.sh
+```
+
+GitHub Actions:
+
+- `Level 3 CI` runs on push and pull request.
+- `Deploy Frontend` builds and publishes the frontend to GitHub Pages.
+- `Deploy Contracts` is a manual workflow for contract deployment. Add `STELLAR_SECRET_KEY` as a repository secret before enabling deploy mode.
+
+## Use the App
 
 1. Install or open a StellarWalletsKit-supported wallet.
 2. Switch the wallet to Testnet.
@@ -166,29 +281,7 @@ http://localhost:4321
 4. Choose a wallet.
 5. Click `Check in on-chain`.
 6. Confirm the transaction in your wallet.
-7. Watch the transaction tracker and live contract event feed update.
-
-## Smart Contract
-
-Main contract:
-
-```text
-contracts/checkin
-```
-
-Functions:
-
-```text
-check_in(user: Address) -> u32
-get_count(user: Address) -> u32
-total() -> u32
-```
-
-Event:
-
-```text
-CheckIn(check_in, user) -> [user_count, total_count]
-```
+7. Watch the transaction tracker, live contract event feed, and reputation score update.
 
 ## Tech Stack
 
@@ -197,23 +290,11 @@ CheckIn(check_in, user) -> [user_count, total_count]
 - React
 - TypeScript
 - Vite
+- Vitest
 - Node.js
 - Express
 - StellarWalletsKit
 - Stellar SDK
 - Stellar Horizon Testnet
 - Soroban RPC events
-
-## Visual Concept
-
-- Mascot: bull
-- Setting: bright futuristic city
-- Physical keywords: creating abundance, exploring new frontiers
-- Art direction: futuristic happy digital painting with an energetic bull mascot, optimistic blockchain atmosphere, glowing city lights, friendly technology, and vibrant colors
-
-## Useful Links
-
-- Stellar Developer Documentation: <https://developers.stellar.org/docs>
-- Freighter Documentation: <https://docs.freighter.app/docs>
-- Stellar Chain Explorer: <https://stellar.expert/explorer/testnet>
-- Stellar Lab: <https://lab.stellar.org>
+- GitHub Actions
