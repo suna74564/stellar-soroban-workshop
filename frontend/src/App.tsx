@@ -296,27 +296,61 @@ export default function App() {
   }
 
   return (
-    <main className="shell">
-      <section className="topbar">
-        <div>
-          <p className="eyebrow">Level 2 Yellow Belt</p>
-          <h1>ProofBull Live Check-in</h1>
+    <main className="app-frame">
+      {error && (
+        <div className="toast-error">
+          <ShieldAlert size={18} />
+          <div>
+            <strong>{errorTitles[error.type]}</strong>
+            <span>{error.message}</span>
+          </div>
+        </div>
+      )}
+
+      <aside className="identity-rail">
+        <div className="brand-lockup">
+          <span>Yellow Belt // Level 2</span>
+          <h1>ProofBull</h1>
+          <p>Live Soroban checkpoint</p>
         </div>
 
-        <div className="actions">
+        <div className="passport-stamp">
+          <span>PB</span>
+          <small>{connected ? "Verified wallet" : "Awaiting wallet"}</small>
+        </div>
+
+        <div className="rail-metrics">
+          <div>
+            <span>Wallet</span>
+            <strong>{connected ? shortAddress(address) : "Not connected"}</strong>
+            <small>{wallet?.walletName ?? "StellarWalletsKit"}</small>
+          </div>
+          <div>
+            <span>XLM</span>
+            <strong>{account?.xlmBalance ?? "0.0000000"}</strong>
+            <small>Horizon Testnet</small>
+          </div>
+          <div>
+            <span>Personal proof</span>
+            <strong>{stats.walletCount}</strong>
+            <small>check-ins</small>
+          </div>
+        </div>
+
+        <div className="rail-actions">
           {connected ? (
             <>
               <button
-                className="icon-button"
+                className="ghost-button"
                 onClick={() => refreshAccount()}
                 disabled={isBusy}
-                title="Refresh account"
                 type="button"
               >
                 <RefreshCw size={18} />
+                Refresh
               </button>
               <button
-                className="secondary-button"
+                className="ghost-button"
                 onClick={() => void disconnectWallet()}
                 type="button"
               >
@@ -326,7 +360,7 @@ export default function App() {
             </>
           ) : (
             <button
-              className="primary-button"
+              className="wallet-button"
               onClick={connectWallet}
               disabled={isBusy}
               type="button"
@@ -336,178 +370,152 @@ export default function App() {
             </button>
           )}
         </div>
-      </section>
+      </aside>
 
-      {error && (
-        <div className="error">
-          <ShieldAlert size={18} />
+      <section className="operations-deck">
+        <header className="deck-header">
           <div>
-            <strong>{errorTitles[error.type]}</strong>
-            <span>{error.message}</span>
+            <span className="deck-kicker">Multi-wallet event terminal</span>
+            <h2>Check in, watch the ledger move.</h2>
           </div>
-        </div>
-      )}
-
-      <section className="wallet-options" aria-label="Wallet options">
-        {walletOptions.slice(0, 10).map((option) => (
-          <a
-            className={`wallet-option ${option.isAvailable ? "available" : ""}`}
-            href={option.url}
-            key={option.id}
-            rel="noreferrer"
-            target="_blank"
-            title={option.isAvailable ? "Available" : "Install or open wallet"}
-          >
-            {option.icon && <img alt="" src={option.icon} />}
-            <span>{option.name}</span>
-          </a>
-        ))}
-      </section>
-
-      <section className="dashboard">
-        <article className="panel wallet-panel">
-          <div className="panel-header">
-            <p>Wallet</p>
-            {connected && <BadgeCheck size={18} />}
+          <div className="sync-pill">
+            {isEventSyncing ? <Loader2 className="spin" size={16} /> : <Wifi size={16} />}
+            {latestLedger ? `Ledger ${latestLedger}` : "Live sync"}
           </div>
-          <strong>{connected ? shortAddress(address) : "Not connected"}</strong>
-          <span>{wallet?.walletName ?? "StellarWalletsKit"}</span>
-        </article>
+        </header>
 
-        <article className="panel">
-          <div className="panel-header">
-            <p>XLM Balance</p>
-          </div>
-          <strong>{account?.xlmBalance ?? "0.0000000"}</strong>
-          <span>Horizon Testnet</span>
-        </article>
+        <section className="wallet-dock" aria-label="Wallet options">
+          {walletOptions.slice(0, 10).map((option) => (
+            <a
+              className={`wallet-chip ${option.isAvailable ? "available" : ""}`}
+              href={option.url}
+              key={option.id}
+              rel="noreferrer"
+              target="_blank"
+              title={option.isAvailable ? "Available" : "Install or open wallet"}
+            >
+              {option.icon && <img alt="" src={option.icon} />}
+              <span>{option.name}</span>
+            </a>
+          ))}
+        </section>
 
-        <article className="panel">
-          <div className="panel-header">
-            <p>Your Check-ins</p>
-          </div>
-          <strong>{stats.walletCount}</strong>
-          <span>Stored on Soroban</span>
-        </article>
-
-        <article className="panel">
-          <div className="panel-header">
-            <p>Total Check-ins</p>
-            {isEventSyncing ? <Loader2 className="spin" size={18} /> : <Wifi size={18} />}
-          </div>
-          <strong>{stats.totalCount}</strong>
-          <span>{latestLedger ? `Latest ledger ${latestLedger}` : "Live sync"}</span>
-        </article>
-      </section>
-
-      <section className="workspace">
-        <div className="contract-zone">
-          <div>
-            <p className="eyebrow">Soroban Contract</p>
-            <h2>Wallet Check-in</h2>
-            <p className="contract-id">{CHECKIN_CONTRACT_ID}</p>
+        <section className="checkin-terminal">
+          <div className="terminal-copy">
+            <span className="terminal-label">Soroban contract</span>
+            <strong>Wallet Check-in</strong>
+            <code>{CHECKIN_CONTRACT_ID}</code>
           </div>
 
-          <button
-            className="primary-button"
-            onClick={checkIn}
-            disabled={!connected || isBusy}
-            type="button"
-          >
-            {isBusy ? <Loader2 className="spin" size={18} /> : <BadgeCheck size={18} />}
-            Check in on-chain
-          </button>
-        </div>
-
-        <div className="status-row">
-          <span>{status}</span>
-          <a href={explorerUrl} target="_blank" rel="noreferrer">
-            Explorer <ExternalLink size={14} />
-          </a>
-          <a href={labUrl} target="_blank" rel="noreferrer">
-            Stellar Lab <ExternalLink size={14} />
-          </a>
-        </div>
-      </section>
-
-      <section className="transaction-strip">
-        <div className={`tx-state ${transaction.phase}`}>
-          <Clock3 size={18} />
-          <div>
-            <p>Transaction Status</p>
-            <strong>{transaction.label}</strong>
-          </div>
-        </div>
-        {transaction.hash && (
-          <a href={transactionUrl(transaction.hash)} target="_blank" rel="noreferrer">
-            {shortAddress(transaction.hash)}
-            <ExternalLink size={14} />
-          </a>
-        )}
-      </section>
-
-      <section className="details">
-        <article className="panel wide">
-          <div className="panel-header">
-            <p>Account Details</p>
-          </div>
-          <dl>
-            <div>
-              <dt>Sequence</dt>
-              <dd>{account?.sequence ?? "-"}</dd>
-            </div>
-            <div>
-              <dt>Subentries</dt>
-              <dd>{account?.subentryCount ?? "-"}</dd>
-            </div>
-            <div>
-              <dt>Last Ledger</dt>
-              <dd>{account?.lastModifiedLedger ?? "-"}</dd>
-            </div>
-            <div>
-              <dt>Network Passphrase</dt>
-              <dd>{network.networkPassphrase ?? NETWORK_PASSPHRASE}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article className="panel wide feed-panel">
-          <div className="panel-header">
-            <p>Live Contract Events</p>
+          <div className="terminal-action">
             <button
-              className="icon-button compact"
-              onClick={() => refreshEvents(false)}
-              title="Refresh events"
+              className="launch-button"
+              onClick={checkIn}
+              disabled={!connected || isBusy}
               type="button"
             >
-              {isEventSyncing ? (
-                <Loader2 className="spin" size={16} />
+              {isBusy ? (
+                <Loader2 className="spin" size={20} />
               ) : (
-                <Activity size={16} />
+                <BadgeCheck size={20} />
               )}
+              Check in on-chain
             </button>
-          </div>
-          <div className="event-list">
-            {events.map((event) => (
-              <a
-                className="event-row"
-                href={transactionUrl(event.txHash)}
-                key={event.id}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <div>
-                  <strong>{shortAddress(event.user)}</strong>
-                  <span>
-                    #{event.userCount} wallet, #{event.totalCount} total
-                  </span>
-                </div>
-                <span>Ledger {event.ledger}</span>
+            <div className="terminal-links">
+              <a href={explorerUrl} target="_blank" rel="noreferrer">
+                Explorer <ExternalLink size={14} />
               </a>
-            ))}
-            {!events.length && <span className="empty">No check-in events loaded</span>}
+              <a href={labUrl} target="_blank" rel="noreferrer">
+                Stellar Lab <ExternalLink size={14} />
+              </a>
+            </div>
           </div>
-        </article>
+        </section>
+
+        <section className="status-board">
+          <article className={`status-ticket ${transaction.phase}`}>
+            <Clock3 size={20} />
+            <div>
+              <span>Transaction</span>
+              <strong>{transaction.label}</strong>
+              {transaction.hash && (
+                <a href={transactionUrl(transaction.hash)} target="_blank" rel="noreferrer">
+                  {shortAddress(transaction.hash)}
+                  <ExternalLink size={14} />
+                </a>
+              )}
+            </div>
+          </article>
+
+          <article className="total-proof">
+            <span>Total contract proofs</span>
+            <strong>{stats.totalCount}</strong>
+            <small>{status}</small>
+          </article>
+        </section>
+
+        <section className="lower-deck">
+          <article className="account-sheet">
+            <div className="section-title">
+              <span>Account telemetry</span>
+              <BadgeCheck size={16} />
+            </div>
+            <dl>
+              <div>
+                <dt>Sequence</dt>
+                <dd>{account?.sequence ?? "-"}</dd>
+              </div>
+              <div>
+                <dt>Subentries</dt>
+                <dd>{account?.subentryCount ?? "-"}</dd>
+              </div>
+              <div>
+                <dt>Last ledger</dt>
+                <dd>{account?.lastModifiedLedger ?? "-"}</dd>
+              </div>
+              <div>
+                <dt>Network passphrase</dt>
+                <dd>{network.networkPassphrase ?? NETWORK_PASSPHRASE}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article className="event-tape">
+            <div className="section-title">
+              <span>Contract event tape</span>
+              <button
+                className="mini-button"
+                onClick={() => refreshEvents(false)}
+                title="Refresh events"
+                type="button"
+              >
+                {isEventSyncing ? (
+                  <Loader2 className="spin" size={16} />
+                ) : (
+                  <Activity size={16} />
+                )}
+              </button>
+            </div>
+            <div className="event-stack">
+              {events.map((event) => (
+                <a
+                  className="event-ticket"
+                  href={transactionUrl(event.txHash)}
+                  key={event.id}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <span>{shortAddress(event.user)}</span>
+                  <strong>
+                    #{event.userCount} wallet / #{event.totalCount} total
+                  </strong>
+                  <small>Ledger {event.ledger}</small>
+                </a>
+              ))}
+              {!events.length && <span className="empty">No check-in events loaded</span>}
+            </div>
+          </article>
+        </section>
       </section>
     </main>
   );
