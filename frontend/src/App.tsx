@@ -321,7 +321,7 @@ export default function App() {
 
       <aside className="identity-rail">
         <div className="brand-lockup">
-          <span>Yellow Belt // Level 2</span>
+          <span>Orange Belt // Level 3</span>
           <h1>ProofBull</h1>
           <p>Live Soroban checkpoint</p>
         </div>
