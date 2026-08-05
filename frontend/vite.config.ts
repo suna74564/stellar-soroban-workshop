@@ -7,7 +7,7 @@ export default defineConfig({
     exclude: ["checkin"],
   },
   build: {
-    chunkSizeWarningLimit: 2200,
+    chunkSizeWarningLimit: 4200,
   },
   server: {
     port: 4321,
