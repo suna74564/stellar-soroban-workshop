@@ -5,6 +5,8 @@ vite.config.js
 vite.config.d.ts
 !packages/checkin/dist/
 !packages/checkin/dist/**
+!packages/badge/dist/
+!packages/badge/dist/**
 # generated types
 .astro/
 
