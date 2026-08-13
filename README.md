@@ -1,10 +1,10 @@
 # ProofBull
 
-## Level 3 - Orange Belt Submission
+## Level 4 - Production MVP Submission
 
 ProofBull is a production-ready Stellar Soroban dApp for live builder check-ins and wallet reputation. Users connect a Stellar Testnet wallet, call a deployed check-in contract from the frontend, and watch the app synchronize transaction status, live contract events, and a reputation score in real time.
 
-The Level 3 version adds a second Soroban contract for reputation badges. The check-in contract calls the badge contract after each successful check-in, so the app demonstrates inter-contract communication, event streaming, tests, CI/CD workflows, mobile responsive UI, and production-style project structure.
+The Level 4 version adds production MVP readiness: real user activation tracking, in-app feedback collection, backend analytics endpoints, monitoring summaries, stronger tests, mobile responsive UI, and a submission evidence pack for the 10+ real wallet interaction requirement.
 
 ## Live Demo
 
@@ -51,19 +51,21 @@ Explorer links:
 - Badge contract: <https://stellar.expert/explorer/testnet/contract/CB5PJLAQUHUT4I23NLKNJQWCAQ5X6KARLP66WGAHK6IY2OBZ4WW3ZIUQ>
 - Contract call transaction: <https://stellar.expert/explorer/testnet/tx/cf4bdadb55d15cb720691a7b580f7bc18f9f9aa986a4ff229fb2fb7a08f48b36>
 
-## Level 3 Checklist
+## Level 4 Checklist
 
-- Advanced smart contract development with two Soroban contracts
-- Inter-contract communication from `checkin` to `badge`
+- Production frontend deployment through GitHub Pages
+- Smart contracts deployed on Stellar Testnet
+- Two Soroban contracts with inter-contract communication
 - Event streaming through Soroban RPC with live frontend updates
-- CI workflow for contract tests, contract build, frontend tests, and frontend build
-- GitHub Pages deployment workflow for the production frontend
-- Manual contract deployment workflow with GitHub Actions
+- Real user onboarding checklist in the product UI
+- Backend analytics and monitoring endpoints
+- In-app user feedback collection
+- Interaction proof endpoint for 10+ real wallets
+- CI workflow for contract tests, contract build, backend tests, frontend tests, and frontend build
 - Mobile responsive frontend
-- Loading, wallet, transaction, and contract error states
-- Contract tests and frontend tests
-- Complete documentation and demo notes
-- 10+ meaningful commits
+- Loading, wallet, transaction, feedback, monitoring, and contract error states
+- Complete documentation and Level 4 evidence templates
+- 20 meaningful August commits after the Level 4 work is committed
 
 ## Screenshots
 
@@ -83,6 +85,13 @@ CI pipeline:
 
 ![CI workflow](docs/ci-workflow-screenshot.png)
 
+Level 4 evidence pack:
+
+```text
+docs/level-4-submission.md
+docs/level-4-evidence/
+```
+
 ## Architecture
 
 ```text
@@ -97,9 +106,9 @@ contracts/
   checkin/             Main wallet check-in contract
   badge/               Reputation scoring contract
 backend/
-  server.js            Horizon account lookup API
+  server.js            Horizon lookup, analytics, feedback, and proof APIs
 .github/workflows/
-  ci.yml               Tests and builds contracts/frontend
+  ci.yml               Tests and builds contracts/backend/frontend
   pages.yml            Deploys frontend to GitHub Pages
   contracts.yml        Manual contract deployment workflow
 ```
@@ -219,6 +228,11 @@ Available endpoints:
 ```text
 GET /api/health
 GET /api/account/:address
+POST /api/analytics
+GET /api/analytics/summary
+POST /api/feedback
+GET /api/feedback/summary
+GET /api/interactions/proof
 ```
 
 ### Run the Frontend
@@ -252,6 +266,13 @@ cd frontend
 npm test
 ```
 
+Run backend tests:
+
+```bash
+cd backend
+npm test
+```
+
 Build frontend:
 
 ```bash
@@ -269,7 +290,7 @@ NETWORK=testnet SOURCE_ACCOUNT=alice ./scripts/deploy-level3.sh
 
 GitHub Actions:
 
-- `Level 3 CI` runs on push and pull request.
+- `Level 4 CI` runs on push and pull request.
 - `Deploy Frontend` builds and publishes the frontend to GitHub Pages.
 - `Deploy Contracts` is a manual workflow for contract deployment. Add `STELLAR_SECRET_KEY` as a repository secret before enabling deploy mode.
 
