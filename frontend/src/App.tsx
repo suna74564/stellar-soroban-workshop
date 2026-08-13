@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchAccount } from "./lib/account";
+import { trackEvent, trackPerformance } from "./lib/analytics";
 import { BADGE_CONTRACT_ID, createBadgeClient } from "./lib/badge";
 import {
   CHECKIN_CONTRACT_ID,
@@ -92,6 +93,7 @@ export default function App() {
   const [isBusy, setIsBusy] = useState(false);
   const [isEventSyncing, setIsEventSyncing] = useState(false);
   const eventCursor = useRef("");
+  const trackedWalletOptions = useRef(false);
 
   const address = wallet?.address ?? "";
   const connected = Boolean(wallet);
@@ -101,9 +103,31 @@ export default function App() {
 
   const refreshWalletOptions = useCallback(async () => {
     try {
-      setWalletOptions(await loadWalletOptions());
+      const nextOptions = await loadWalletOptions();
+      setWalletOptions(nextOptions);
+
+      if (!trackedWalletOptions.current) {
+        trackedWalletOptions.current = true;
+        trackEvent({
+          eventName: "wallet_options_loaded",
+          metadata: {
+            availableWallets: nextOptions.filter((option) => option.isAvailable)
+              .length,
+            totalWallets: nextOptions.length,
+          },
+        });
+      }
     } catch (nextError) {
-      setError(classifyError(nextError));
+      const appError = classifyError(nextError);
+      setError(appError);
+      trackEvent({
+        eventName: "app_error",
+        metadata: {
+          source: "wallet_options",
+          type: appError.type,
+          message: appError.message.slice(0, 140),
+        },
+      });
     }
   }, []);
 
@@ -144,17 +168,39 @@ export default function App() {
       if (nextEvents.events.length > 0) {
         setEvents((current) => mergeCheckinEvents(current, nextEvents.events));
         if (!quiet) {
+          trackEvent({
+            eventName: "contract_events_synced",
+            metadata: {
+              eventCount: nextEvents.events.length,
+              latestLedger: nextEvents.latestLedger,
+            },
+          });
+        }
+        if (!quiet) {
           setStatus(`${nextEvents.events.length} contract event synced`);
         }
       } else if (!quiet) {
         setStatus("No new contract events");
       }
     } catch (nextError) {
-      if (!quiet) setError(classifyError(nextError));
+      if (!quiet) {
+        const appError = classifyError(nextError);
+        setError(appError);
+        trackEvent({
+          eventName: "app_error",
+          address,
+          walletName: wallet?.walletName,
+          metadata: {
+            source: "event_sync",
+            type: appError.type,
+            message: appError.message.slice(0, 140),
+          },
+        });
+      }
     } finally {
       setIsEventSyncing(false);
     }
-  }, []);
+  }, [address, wallet?.walletName]);
 
   const refreshAccount = useCallback(
     async (walletAddress = address) => {
@@ -175,23 +221,43 @@ export default function App() {
         setNetwork(nextNetwork);
         setStatus("Testnet state refreshed");
       } catch (nextError) {
-        setError(classifyError(nextError));
+        const appError = classifyError(nextError);
+        setError(appError);
+        trackEvent({
+          eventName: "app_error",
+          address: walletAddress,
+          walletName: wallet?.walletName,
+          metadata: {
+            source: "account_refresh",
+            type: appError.type,
+            message: appError.message.slice(0, 140),
+          },
+        });
       } finally {
         setIsBusy(false);
       }
     },
-    [address, refreshBadge, refreshContract],
+    [address, refreshBadge, refreshContract, wallet?.walletName],
   );
 
   useEffect(() => {
     initWalletKit();
+    trackEvent({ eventName: "app_opened" });
+
+    const performanceTimer = window.setTimeout(() => {
+      trackPerformance();
+    }, 1200);
+
     void refreshWalletOptions();
 
     const timer = window.setInterval(() => {
       void refreshWalletOptions();
     }, 20000);
 
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(performanceTimer);
+    };
   }, [refreshWalletOptions]);
 
   useEffect(() => {
@@ -216,10 +282,27 @@ export default function App() {
       setWallet(nextWallet);
       setNetwork(walletNetwork);
       setStatus(`${nextWallet.walletName} connected`);
+      trackEvent({
+        eventName: "wallet_connected",
+        address: nextWallet.address,
+        walletName: nextWallet.walletName,
+        metadata: {
+          network: walletNetwork.network,
+        },
+      });
       await refreshAccount(nextWallet.address);
     } catch (nextError) {
-      setError(classifyError(nextError));
+      const appError = classifyError(nextError);
+      setError(appError);
       setStatus("Wallet connection failed");
+      trackEvent({
+        eventName: "app_error",
+        metadata: {
+          source: "wallet_connect",
+          type: appError.type,
+          message: appError.message.slice(0, 140),
+        },
+      });
     } finally {
       setIsBusy(false);
     }
@@ -235,6 +318,11 @@ export default function App() {
     setTransaction(initialTransaction);
     setError(null);
     setStatus("Wallet disconnected");
+    trackEvent({
+      eventName: "wallet_disconnected",
+      address,
+      walletName: wallet?.walletName,
+    });
   }
 
   async function checkIn() {
@@ -292,6 +380,15 @@ export default function App() {
         hash,
       });
       setStatus("Contract call confirmed");
+      trackEvent({
+        eventName: "checkin_success",
+        address,
+        walletName: wallet?.walletName,
+        txHash: hash,
+        metadata: {
+          walletCheckins: Number(sent.result),
+        },
+      });
       await refreshAccount(address);
       await refreshEvents(false);
     } catch (nextError) {
@@ -302,6 +399,16 @@ export default function App() {
         label: appError.message,
       });
       setStatus("Contract call failed");
+      trackEvent({
+        eventName: "app_error",
+        address,
+        walletName: wallet?.walletName,
+        metadata: {
+          source: "check_in",
+          type: appError.type,
+          message: appError.message.slice(0, 140),
+        },
+      });
     } finally {
       setIsBusy(false);
     }
