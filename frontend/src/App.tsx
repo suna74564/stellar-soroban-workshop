@@ -1,16 +1,28 @@
 import {
   Activity,
   BadgeCheck,
+  CheckCircle2,
   Clock3,
+  ClipboardCheck,
   ExternalLink,
   Loader2,
   LogOut,
+  MessageSquare,
   RefreshCw,
+  Send,
   ShieldAlert,
+  Star,
   Wallet,
   Wifi,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { fetchAccount } from "./lib/account";
 import { trackEvent, trackPerformance } from "./lib/analytics";
 import { BADGE_CONTRACT_ID, createBadgeClient } from "./lib/badge";
@@ -21,6 +33,7 @@ import {
 } from "./lib/checkin";
 import { classifyError, ensureSpendableTestnetBalance } from "./lib/errors";
 import { fetchCheckinEvents } from "./lib/events";
+import { submitFeedback } from "./lib/feedback";
 import { badgeTier, mergeCheckinEvents, nextTierProgress } from "./lib/reputation";
 import {
   assertWalletIsOnTestnet,
@@ -87,6 +100,12 @@ export default function App() {
   const [transaction, setTransaction] =
     useState<TransactionState>(initialTransaction);
   const [status, setStatus] = useState("Ready for Testnet");
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackCategory, setFeedbackCategory] = useState("usability");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState<
+    "idle" | "submitting" | "sent" | "failed"
+  >("idle");
   const [error, setError] = useState<ReturnType<typeof classifyError> | null>(
     null,
   );
@@ -100,6 +119,32 @@ export default function App() {
   const client = useMemo(() => createCheckinClient(address), [address]);
   const currentTier = badgeTier(badgeStats.score);
   const tierProgress = nextTierProgress(badgeStats.score);
+  const hasSpendableBalance = Number(account?.xlmBalance ?? 0) >= 1;
+  const hasOnChainProof =
+    stats.walletCount > 0 || transaction.phase === "success";
+  const onboardingSteps = [
+    {
+      label: "Wallet",
+      detail: connected ? shortAddress(address) : "Connect",
+      complete: connected,
+    },
+    {
+      label: "Testnet XLM",
+      detail: hasSpendableBalance ? "Ready" : "Fund",
+      complete: hasSpendableBalance,
+    },
+    {
+      label: "On-chain proof",
+      detail: hasOnChainProof ? `${stats.walletCount} check-ins` : "Pending",
+      complete: hasOnChainProof,
+    },
+    {
+      label: "Feedback",
+      detail: feedbackStatus === "sent" ? "Saved" : "Open",
+      complete: feedbackStatus === "sent",
+    },
+  ];
+  const completedOnboarding = onboardingSteps.filter((step) => step.complete).length;
 
   const refreshWalletOptions = useCallback(async () => {
     try {
@@ -414,6 +459,49 @@ export default function App() {
     }
   }
 
+  async function handleFeedbackSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setFeedbackStatus("submitting");
+    setError(null);
+
+    try {
+      await submitFeedback({
+        address,
+        category: feedbackCategory,
+        rating: feedbackRating,
+        message: feedbackMessage,
+        txHash: transaction.hash,
+      });
+      setFeedbackStatus("sent");
+      setFeedbackMessage("");
+      setStatus("Feedback saved");
+      trackEvent({
+        eventName: "feedback_submitted",
+        address,
+        walletName: wallet?.walletName,
+        metadata: {
+          category: feedbackCategory,
+          rating: feedbackRating,
+        },
+      });
+    } catch (nextError) {
+      const appError = classifyError(nextError);
+      setError(appError);
+      setFeedbackStatus("failed");
+      trackEvent({
+        eventName: "app_error",
+        address,
+        walletName: wallet?.walletName,
+        metadata: {
+          source: "feedback",
+          type: appError.type,
+          message: appError.message.slice(0, 140),
+        },
+      });
+    }
+  }
+
   return (
     <main className="app-frame">
       {error && (
@@ -522,6 +610,96 @@ export default function App() {
               <span>{option.name}</span>
             </a>
           ))}
+        </section>
+
+        <section className="activation-panel">
+          <article className="onboarding-card">
+            <div className="section-title">
+              <span>Real user activation</span>
+              <ClipboardCheck size={16} />
+            </div>
+            <div className="activation-score">
+              <strong>
+                {completedOnboarding}/{onboardingSteps.length}
+              </strong>
+              <span>Level 4 readiness</span>
+            </div>
+            <div className="onboarding-steps">
+              {onboardingSteps.map((step) => (
+                <div
+                  className={`onboarding-step ${step.complete ? "complete" : ""}`}
+                  key={step.label}
+                >
+                  <CheckCircle2 size={18} />
+                  <span>{step.label}</span>
+                  <strong>{step.detail}</strong>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="feedback-card">
+            <div className="section-title">
+              <span>User feedback</span>
+              <MessageSquare size={16} />
+            </div>
+            <form className="feedback-form" onSubmit={handleFeedbackSubmit}>
+              <div className="rating-row" aria-label="Rating">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <button
+                    aria-label={`${rating} star rating`}
+                    className={rating <= feedbackRating ? "active" : ""}
+                    key={rating}
+                    onClick={() => setFeedbackRating(rating)}
+                    type="button"
+                  >
+                    <Star size={18} />
+                  </button>
+                ))}
+              </div>
+              <label>
+                <span>Category</span>
+                <select
+                  onChange={(event) => setFeedbackCategory(event.target.value)}
+                  value={feedbackCategory}
+                >
+                  <option value="usability">Usability</option>
+                  <option value="wallet">Wallet flow</option>
+                  <option value="trust">Trust signal</option>
+                  <option value="performance">Performance</option>
+                </select>
+              </label>
+              <label>
+                <span>Feedback</span>
+                <textarea
+                  minLength={3}
+                  onChange={(event) => {
+                    setFeedbackMessage(event.target.value);
+                    setFeedbackStatus("idle");
+                  }}
+                  placeholder="What would make ProofBull more useful?"
+                  required
+                  rows={3}
+                  value={feedbackMessage}
+                />
+              </label>
+              <button
+                className="submit-feedback"
+                disabled={feedbackStatus === "submitting"}
+                type="submit"
+              >
+                {feedbackStatus === "submitting" ? (
+                  <Loader2 className="spin" size={18} />
+                ) : (
+                  <Send size={18} />
+                )}
+                {feedbackStatus === "sent" ? "Saved" : "Send feedback"}
+              </button>
+              {feedbackStatus === "failed" && (
+                <small className="feedback-note">Feedback was not saved.</small>
+              )}
+            </form>
+          </article>
         </section>
 
         <section className="checkin-terminal">
