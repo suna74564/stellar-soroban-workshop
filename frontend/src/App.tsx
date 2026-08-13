@@ -1,10 +1,12 @@
 import {
   Activity,
   BadgeCheck,
+  BarChart3,
   CheckCircle2,
   Clock3,
   ClipboardCheck,
   ExternalLink,
+  HeartPulse,
   Loader2,
   LogOut,
   MessageSquare,
@@ -12,6 +14,7 @@ import {
   Send,
   ShieldAlert,
   Star,
+  UsersRound,
   Wallet,
   Wifi,
 } from "lucide-react";
@@ -34,6 +37,10 @@ import {
 import { classifyError, ensureSpendableTestnetBalance } from "./lib/errors";
 import { fetchCheckinEvents } from "./lib/events";
 import { submitFeedback } from "./lib/feedback";
+import {
+  fetchMonitoringSummary,
+  type MonitoringSummary,
+} from "./lib/monitoring";
 import { badgeTier, mergeCheckinEvents, nextTierProgress } from "./lib/reputation";
 import {
   assertWalletIsOnTestnet,
@@ -106,6 +113,11 @@ export default function App() {
   const [feedbackStatus, setFeedbackStatus] = useState<
     "idle" | "submitting" | "sent" | "failed"
   >("idle");
+  const [monitoring, setMonitoring] = useState<MonitoringSummary | null>(null);
+  const [monitoringStatus, setMonitoringStatus] = useState<
+    "loading" | "online" | "offline"
+  >("loading");
+  const [isMonitoringRefreshing, setIsMonitoringRefreshing] = useState(false);
   const [error, setError] = useState<ReturnType<typeof classifyError> | null>(
     null,
   );
@@ -145,6 +157,9 @@ export default function App() {
     },
   ];
   const completedOnboarding = onboardingSteps.filter((step) => step.complete).length;
+  const proofWallets =
+    monitoring?.interactions.uniqueWallets ?? monitoring?.analytics.uniqueWallets ?? 0;
+  const proofRequirementMet = monitoring?.interactions.requirementMet ?? false;
 
   const refreshWalletOptions = useCallback(async () => {
     try {
@@ -285,6 +300,20 @@ export default function App() {
     [address, refreshBadge, refreshContract, wallet?.walletName],
   );
 
+  const refreshMonitoring = useCallback(async () => {
+    setIsMonitoringRefreshing(true);
+
+    try {
+      const summary = await fetchMonitoringSummary();
+      setMonitoring(summary);
+      setMonitoringStatus("online");
+    } catch {
+      setMonitoringStatus("offline");
+    } finally {
+      setIsMonitoringRefreshing(false);
+    }
+  }, []);
+
   useEffect(() => {
     initWalletKit();
     trackEvent({ eventName: "app_opened" });
@@ -314,6 +343,16 @@ export default function App() {
 
     return () => window.clearInterval(timer);
   }, [refreshEvents]);
+
+  useEffect(() => {
+    void refreshMonitoring();
+
+    const timer = window.setInterval(() => {
+      void refreshMonitoring();
+    }, 30000);
+
+    return () => window.clearInterval(timer);
+  }, [refreshMonitoring]);
 
   async function connectWallet() {
     setIsBusy(true);
@@ -699,6 +738,51 @@ export default function App() {
                 <small className="feedback-note">Feedback was not saved.</small>
               )}
             </form>
+          </article>
+        </section>
+
+        <section className="monitoring-strip" aria-label="Monitoring and analytics">
+          <article className={`monitor-tile ${monitoringStatus}`}>
+            <HeartPulse size={20} />
+            <span>Backend</span>
+            <strong>{monitoringStatus === "online" ? "Online" : "Offline"}</strong>
+            <small>
+              {monitoring?.health.uptimeSeconds
+                ? `${monitoring.health.uptimeSeconds}s uptime`
+                : "Awaiting API"}
+            </small>
+          </article>
+          <article className={proofRequirementMet ? "monitor-tile success" : "monitor-tile"}>
+            <UsersRound size={20} />
+            <span>Wallet proof</span>
+            <strong>
+              {proofWallets}/{monitoring?.interactions.minimumRequiredWallets ?? 10}
+            </strong>
+            <small>{proofRequirementMet ? "Ready" : "Collecting"}</small>
+          </article>
+          <article className="monitor-tile">
+            <BarChart3 size={20} />
+            <span>Check-ins</span>
+            <strong>{monitoring?.analytics.checkIns ?? stats.totalCount}</strong>
+            <small>{monitoring?.analytics.totalEvents ?? 0} events</small>
+          </article>
+          <article className="monitor-tile">
+            <MessageSquare size={20} />
+            <span>Feedback</span>
+            <strong>
+              {monitoring?.feedback.averageRating
+                ? `${monitoring.feedback.averageRating}/5`
+                : "-"}
+            </strong>
+            <small>{monitoring?.feedback.totalFeedback ?? 0} responses</small>
+          </article>
+          <article className="monitor-tile">
+            <ShieldAlert size={20} />
+            <span>Errors</span>
+            <strong>{monitoring?.analytics.errors ?? 0}</strong>
+            <small>
+              {isMonitoringRefreshing ? "Refreshing" : monitoring?.analytics.lastEventAt ?? "-"}
+            </small>
           </article>
         </section>
 
