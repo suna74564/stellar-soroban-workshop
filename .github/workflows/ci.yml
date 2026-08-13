@@ -1,4 +1,4 @@
-name: Level 3 CI
+name: Level 4 CI
 
 on:
   push:
@@ -29,7 +29,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Backend tests
+        working-directory: backend
+        run: npm test
 
       - name: Install frontend dependencies
         working-directory: frontend
