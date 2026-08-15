@@ -17,6 +17,7 @@ const ANALYTICS_FILE = join(DATA_DIR, "analytics.jsonl");
 const FEEDBACK_FILE = join(DATA_DIR, "feedback.jsonl");
 const MAX_EVENT_NAME_LENGTH = 64;
 const MAX_FEEDBACK_LENGTH = 1200;
+const LEVEL_TARGET_WALLETS = Number(process.env.LEVEL_TARGET_WALLETS ?? 50);
 
 function isValidEventName(value) {
   return (
@@ -85,6 +86,31 @@ function summarizeFeedback(feedback) {
     averageRating,
     categories,
     latestFeedback: feedback.slice(-5).reverse(),
+  };
+}
+
+function summarizeInteractionProof(analytics) {
+  const interactions = analytics.filter(
+    (event) =>
+      event.address &&
+      ["wallet_connected", "checkin_success"].includes(event.eventName),
+  );
+  const transactionInteractions = interactions.filter(
+    (event) => event.eventName === "checkin_success" && event.txHash,
+  );
+  const uniqueWallets = new Set(interactions.map((event) => event.address));
+  const activeWallets = new Set(
+    transactionInteractions.map((event) => event.address),
+  );
+
+  return {
+    level: "Level 5",
+    minimumRequiredWallets: LEVEL_TARGET_WALLETS,
+    uniqueWallets: uniqueWallets.size,
+    activeWallets: activeWallets.size,
+    transactionCount: transactionInteractions.length,
+    requirementMet: activeWallets.size >= LEVEL_TARGET_WALLETS,
+    latestInteractions: interactions.slice(-50).reverse(),
   };
 }
 
@@ -248,21 +274,7 @@ export function createApp() {
 
   app.get("/api/interactions/proof", async (_request, response) => {
     const analytics = await readJsonLines(ANALYTICS_FILE);
-    const interactions = analytics.filter(
-      (event) =>
-        event.address &&
-        ["wallet_connected", "checkin_success"].includes(event.eventName),
-    );
-    const uniqueWallets = new Set(interactions.map((event) => event.address));
-
-    response.json({
-      minimumRequiredWallets: 10,
-      uniqueWallets: uniqueWallets.size,
-      requirementMet: uniqueWallets.size >= 10,
-      checkIns: interactions.filter((event) => event.eventName === "checkin_success")
-        .length,
-      latestInteractions: interactions.slice(-20).reverse(),
-    });
+    response.json(summarizeInteractionProof(analytics));
   });
 
   app.use((_request, response) => {

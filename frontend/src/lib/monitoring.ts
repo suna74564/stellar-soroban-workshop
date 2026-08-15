@@ -16,10 +16,12 @@ export type MonitoringSummary = {
     lastEventAt: string | null;
   };
   interactions: {
+    level: string;
     minimumRequiredWallets: number;
     uniqueWallets: number;
+    activeWallets: number;
+    transactionCount: number;
     requirementMet: boolean;
-    checkIns: number;
   };
   feedback: {
     totalFeedback: number;

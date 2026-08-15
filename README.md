@@ -1,15 +1,18 @@
 # ProofBull
 
-## Level 4 - Production MVP Submission
+## Level 5 - Blue Belt Submission
 
-ProofBull is a production-ready Stellar Soroban dApp for live builder check-ins and wallet reputation. Users connect a Stellar Testnet wallet, call a deployed check-in contract from the frontend, and watch the app synchronize transaction status, live contract events, and a reputation score in real time.
+ProofBull is a production-ready Stellar Soroban dApp for live builder check-ins and wallet reputation. Users connect a Stellar Testnet wallet, call a deployed check-in contract from the frontend, and watch the app synchronize transaction status, live contract events, analytics, and a reputation score in real time.
 
-The Level 4 version adds production MVP readiness: real user activation tracking, in-app feedback collection, backend analytics endpoints, monitoring summaries, stronger tests, mobile responsive UI, and a submission evidence pack for the 10+ real wallet interaction requirement.
+The Level 5 version focuses on user growth and product iteration: 50-user Testnet growth tracking, active transaction proof, feedback export analysis, a pitch deck, a demo flow, and a next-phase roadmap based on real user feedback.
 
 ## Live Demo
 
 - GitHub Pages: <https://suna74564.github.io/stellar-soroban-workshop/>
-- Demo video: pending 1-2 minute recording
+- Google Form: TODO - add the live Google Form URL after creating it.
+- Exported Excel sheet: [docs/level-5-evidence/proofbull-level-5-feedback-analysis.xlsx](docs/level-5-evidence/proofbull-level-5-feedback-analysis.xlsx)
+- Pitch deck/PPT: [docs/level-5-evidence/proofbull-level-5-pitch-deck.pptx](docs/level-5-evidence/proofbull-level-5-pitch-deck.pptx)
+- Demo video: TODO - add the full product walkthrough URL.
 
 ## About Me
 
@@ -51,21 +54,45 @@ Explorer links:
 - Badge contract: <https://stellar.expert/explorer/testnet/contract/CB5PJLAQUHUT4I23NLKNJQWCAQ5X6KARLP66WGAHK6IY2OBZ4WW3ZIUQ>
 - Contract call transaction: <https://stellar.expert/explorer/testnet/tx/cf4bdadb55d15cb720691a7b580f7bc18f9f9aa986a4ff229fb2fb7a08f48b36>
 
-## Level 4 Checklist
+## Level 5 Checklist
 
 - Production frontend deployment through GitHub Pages
 - Smart contracts deployed on Stellar Testnet
 - Two Soroban contracts with inter-contract communication
 - Event streaming through Soroban RPC with live frontend updates
-- Real user onboarding checklist in the product UI
+- 50-user Blue Belt growth target in the product UI
+- Active Testnet transaction proof tracking in the backend
 - Backend analytics and monitoring endpoints
 - In-app user feedback collection
-- Interaction proof endpoint for 10+ real wallets
+- Interaction proof endpoint for 50+ real transaction wallets
+- Google Form response export workbook for user details and feedback analysis
+- Pitch deck for problem, solution, market, architecture, growth strategy, and roadmap
 - CI workflow for contract tests, contract build, backend tests, frontend tests, and frontend build
 - Mobile responsive frontend
 - Loading, wallet, transaction, feedback, monitoring, and contract error states
-- Complete documentation and Level 4 evidence templates
-- 20 meaningful August commits after the Level 4 work is committed
+- Complete documentation and Level 5 evidence templates
+- 20+ meaningful commits
+
+## Level 5 User Growth Evidence
+
+Level 5 requires 50+ real Testnet users with active transaction proof. Use these files to collect and verify the evidence before submission:
+
+- Submission guide: [docs/level-5-submission.md](docs/level-5-submission.md)
+- Evidence pack: [docs/level-5-evidence/](docs/level-5-evidence/)
+- Wallet transaction tracker: [docs/level-5-evidence/user-wallet-interactions.csv](docs/level-5-evidence/user-wallet-interactions.csv)
+- Feedback iteration summary: [docs/level-5-evidence/feedback-iteration-summary.md](docs/level-5-evidence/feedback-iteration-summary.md)
+
+The Google Form should collect name, email, Stellar Testnet wallet address, wallet used, transaction hash, transaction URL, product rating, feedback, and consent. Export the responses to the Excel workbook above before submitting.
+
+## Feedback-Based Improvement Plan
+
+Initial Level 5 improvements shipped from Level 4 feedback themes:
+
+- Users need clearer proof progress, so the UI now shows progress toward the 50 active Testnet wallet target.
+- Reviewers need stronger transaction evidence, so the backend proof endpoint now counts wallets with real check-in transaction hashes separately from basic wallet connections.
+- The submission needs auditable user feedback, so the project now includes a Google Form field list, wallet interaction tracker, Excel analysis workbook, and iteration summary.
+
+Commit evidence will be added here after the Level 5 commits are pushed.
 
 ## Screenshots
 
@@ -92,6 +119,13 @@ docs/level-4-submission.md
 docs/level-4-evidence/
 ```
 
+Level 5 evidence pack:
+
+```text
+docs/level-5-submission.md
+docs/level-5-evidence/
+```
+
 ## Architecture
 
 ```text
@@ -106,7 +140,7 @@ contracts/
   checkin/             Main wallet check-in contract
   badge/               Reputation scoring contract
 backend/
-  server.js            Horizon lookup, analytics, feedback, and proof APIs
+  server.js            Horizon lookup, analytics, feedback, and Level 5 proof APIs
 .github/workflows/
   ci.yml               Tests and builds contracts/backend/frontend
   pages.yml            Deploys frontend to GitHub Pages

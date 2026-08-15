@@ -157,9 +157,19 @@ export default function App() {
     },
   ];
   const completedOnboarding = onboardingSteps.filter((step) => step.complete).length;
+  const levelTargetWallets = monitoring?.interactions.minimumRequiredWallets ?? 50;
+  const activeProofWallets = monitoring?.interactions.activeWallets ?? 0;
+  const transactionProofs = monitoring?.interactions.transactionCount ?? 0;
   const proofWallets =
-    monitoring?.interactions.uniqueWallets ?? monitoring?.analytics.uniqueWallets ?? 0;
+    activeProofWallets ||
+    monitoring?.interactions.uniqueWallets ||
+    monitoring?.analytics.uniqueWallets ||
+    0;
   const proofRequirementMet = monitoring?.interactions.requirementMet ?? false;
+  const growthProgress = Math.min(
+    100,
+    Math.round((proofWallets / levelTargetWallets) * 100),
+  );
 
   const refreshWalletOptions = useCallback(async () => {
     try {
@@ -555,9 +565,9 @@ export default function App() {
 
       <aside className="identity-rail">
         <div className="brand-lockup">
-          <span>Orange Belt // Level 3</span>
+          <span>Blue Belt // Level 5</span>
           <h1>ProofBull</h1>
-          <p>Live Soroban checkpoint</p>
+          <p>Growth-ready Soroban checkpoint</p>
         </div>
 
         <div className="passport-stamp">
@@ -661,7 +671,19 @@ export default function App() {
               <strong>
                 {completedOnboarding}/{onboardingSteps.length}
               </strong>
-              <span>Level 4 readiness</span>
+              <span>Level 5 user flow</span>
+            </div>
+            <div className="growth-meter" aria-label="Level 5 growth progress">
+              <div>
+                <span>Active testnet users</span>
+                <strong>
+                  {proofWallets}/{levelTargetWallets}
+                </strong>
+              </div>
+              <progress value={growthProgress} max={100}>
+                {growthProgress}%
+              </progress>
+              <small>{transactionProofs} verified check-in transactions</small>
             </div>
             <div className="onboarding-steps">
               {onboardingSteps.map((step) => (
@@ -756,9 +778,9 @@ export default function App() {
             <UsersRound size={20} />
             <span>Wallet proof</span>
             <strong>
-              {proofWallets}/{monitoring?.interactions.minimumRequiredWallets ?? 10}
+              {proofWallets}/{levelTargetWallets}
             </strong>
-            <small>{proofRequirementMet ? "Ready" : "Collecting"}</small>
+            <small>{proofRequirementMet ? "Ready" : `${growthProgress}% complete`}</small>
           </article>
           <article className="monitor-tile">
             <BarChart3 size={20} />

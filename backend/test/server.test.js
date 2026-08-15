@@ -6,6 +6,7 @@ import { after, before, test } from "node:test";
 import { Keypair } from "@stellar/stellar-sdk";
 
 process.env.DATA_DIR = await mkdtemp(join(tmpdir(), "proofbull-api-"));
+process.env.LEVEL_TARGET_WALLETS = "2";
 
 const { createApp } = await import("../src/server.js");
 
@@ -44,6 +45,7 @@ test("health endpoint exposes testnet runtime status", async () => {
 
 test("analytics endpoints persist product validation events", async () => {
   const address = Keypair.random().publicKey();
+  const secondAddress = Keypair.random().publicKey();
   const events = [
     { eventName: "wallet_connected", address, walletName: "Freighter" },
     {
@@ -52,6 +54,7 @@ test("analytics endpoints persist product validation events", async () => {
       txHash: "abc123",
       metadata: { walletCheckins: 1 },
     },
+    { eventName: "wallet_connected", address: secondAddress, walletName: "xBull" },
     { eventName: "app_error", metadata: { type: "network" } },
   ];
 
@@ -67,16 +70,18 @@ test("analytics endpoints persist product validation events", async () => {
 
   const { payload: summary } = await request("/api/analytics/summary");
 
-  assert.equal(summary.totalEvents, 3);
-  assert.equal(summary.uniqueWallets, 1);
-  assert.equal(summary.walletConnections, 1);
+  assert.equal(summary.totalEvents, 4);
+  assert.equal(summary.uniqueWallets, 2);
+  assert.equal(summary.walletConnections, 2);
   assert.equal(summary.checkIns, 1);
   assert.equal(summary.errors, 1);
 
   const { payload: proof } = await request("/api/interactions/proof");
 
-  assert.equal(proof.uniqueWallets, 1);
-  assert.equal(proof.checkIns, 1);
+  assert.equal(proof.minimumRequiredWallets, 2);
+  assert.equal(proof.uniqueWallets, 2);
+  assert.equal(proof.activeWallets, 1);
+  assert.equal(proof.transactionCount, 1);
   assert.equal(proof.requirementMet, false);
 });
 
