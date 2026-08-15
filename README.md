@@ -92,7 +92,7 @@ Initial Level 5 improvements shipped from Level 4 feedback themes:
 - Reviewers need stronger transaction evidence, so the backend proof endpoint now counts wallets with real check-in transaction hashes separately from basic wallet connections.
 - The submission needs auditable user feedback, so the project now includes a Google Form field list, wallet interaction tracker, Excel analysis workbook, and iteration summary.
 
-Commit evidence will be added here after the Level 5 commits are pushed.
+Commit evidence: <https://github.com/suna74564/stellar-soroban-workshop/commit/2b32f0952b9d8497c500dd0bb26b779f576b1078>
 
 ## Screenshots
 
