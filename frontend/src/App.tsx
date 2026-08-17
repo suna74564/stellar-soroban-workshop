@@ -130,6 +130,9 @@ export default function App() {
   const address = wallet?.address ?? "";
   const connected = Boolean(wallet);
   const client = useMemo(() => createCheckinClient(address), [address]);
+  const friendbotUrl = address
+    ? `https://friendbot.stellar.org?addr=${encodeURIComponent(address)}`
+    : "https://friendbot.stellar.org";
   const currentTier = badgeTier(badgeStats.score);
   const tierProgress = nextTierProgress(badgeStats.score);
   const hasSpendableBalance = Number(account?.xlmBalance ?? 0) >= 1;
@@ -701,6 +704,17 @@ export default function App() {
                 </div>
               ))}
             </div>
+            {connected && !hasSpendableBalance && (
+              <a
+                className="funding-hint"
+                href={friendbotUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Fund this Testnet wallet
+                <ExternalLink size={14} />
+              </a>
+            )}
           </article>
 
           <article className="feedback-card">
