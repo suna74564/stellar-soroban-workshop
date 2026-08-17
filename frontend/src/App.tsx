@@ -41,6 +41,7 @@ import {
   fetchMonitoringSummary,
   type MonitoringSummary,
 } from "./lib/monitoring";
+import { createProofProgress } from "./lib/proof";
 import { badgeTier, mergeCheckinEvents, nextTierProgress } from "./lib/reputation";
 import {
   assertWalletIsOnTestnet,
@@ -157,19 +158,14 @@ export default function App() {
     },
   ];
   const completedOnboarding = onboardingSteps.filter((step) => step.complete).length;
-  const levelTargetWallets = monitoring?.interactions.minimumRequiredWallets ?? 50;
-  const activeProofWallets = monitoring?.interactions.activeWallets ?? 0;
-  const transactionProofs = monitoring?.interactions.transactionCount ?? 0;
-  const proofWallets =
-    activeProofWallets ||
-    monitoring?.interactions.uniqueWallets ||
-    monitoring?.analytics.uniqueWallets ||
-    0;
-  const proofRequirementMet = monitoring?.interactions.requirementMet ?? false;
-  const growthProgress = Math.min(
-    100,
-    Math.round((proofWallets / levelTargetWallets) * 100),
-  );
+  const proofProgress = createProofProgress({
+    activeWallets: monitoring?.interactions.activeWallets,
+    analyticsWallets: monitoring?.analytics.uniqueWallets,
+    requirementMet: monitoring?.interactions.requirementMet,
+    targetWallets: monitoring?.interactions.minimumRequiredWallets,
+    transactionCount: monitoring?.interactions.transactionCount,
+    uniqueWallets: monitoring?.interactions.uniqueWallets,
+  });
 
   const refreshWalletOptions = useCallback(async () => {
     try {
@@ -677,13 +673,15 @@ export default function App() {
               <div>
                 <span>Active testnet users</span>
                 <strong>
-                  {proofWallets}/{levelTargetWallets}
+                  {proofProgress.activeWallets}/{proofProgress.targetWallets}
                 </strong>
               </div>
-              <progress value={growthProgress} max={100}>
-                {growthProgress}%
+              <progress value={proofProgress.percentage} max={100}>
+                {proofProgress.percentage}%
               </progress>
-              <small>{transactionProofs} verified check-in transactions</small>
+              <small>
+                {proofProgress.transactionCount} verified check-in transactions
+              </small>
             </div>
             <div className="onboarding-steps">
               {onboardingSteps.map((step) => (
@@ -774,13 +772,17 @@ export default function App() {
                 : "Awaiting API"}
             </small>
           </article>
-          <article className={proofRequirementMet ? "monitor-tile success" : "monitor-tile"}>
+          <article
+            className={
+              proofProgress.requirementMet ? "monitor-tile success" : "monitor-tile"
+            }
+          >
             <UsersRound size={20} />
             <span>Wallet proof</span>
             <strong>
-              {proofWallets}/{levelTargetWallets}
+              {proofProgress.activeWallets}/{proofProgress.targetWallets}
             </strong>
-            <small>{proofRequirementMet ? "Ready" : `${growthProgress}% complete`}</small>
+            <small>{proofProgress.statusLabel}</small>
           </article>
           <article className="monitor-tile">
             <BarChart3 size={20} />
