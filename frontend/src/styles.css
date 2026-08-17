@@ -824,6 +824,16 @@ button:disabled {
   color: var(--ink);
 }
 
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .mini-button {
   width: 38px;
   min-height: 38px;

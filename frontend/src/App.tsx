@@ -67,6 +67,7 @@ import type {
 
 const explorerUrl = `https://stellar.expert/explorer/testnet/contract/${CHECKIN_CONTRACT_ID}`;
 const labUrl = `https://lab.stellar.org/r/testnet/contract/${CHECKIN_CONTRACT_ID}`;
+const googleFormUrl = import.meta.env.VITE_GOOGLE_FORM_URL ?? "";
 const initialTransaction: TransactionState = {
   phase: "idle",
   label: "No transaction yet",
@@ -736,7 +737,19 @@ export default function App() {
           <article className="feedback-card">
             <div className="section-title">
               <span>User feedback</span>
-              <MessageSquare size={16} />
+              {googleFormUrl ? (
+                <a
+                  className="section-link"
+                  href={googleFormUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Form
+                  <ExternalLink size={14} />
+                </a>
+              ) : (
+                <MessageSquare size={16} />
+              )}
             </div>
             <form className="feedback-form" onSubmit={handleFeedbackSubmit}>
               <div className="rating-row" aria-label="Rating">
