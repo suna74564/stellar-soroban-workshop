@@ -1,4 +1,4 @@
-name: Level 4 CI
+name: Level 5 CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-and-build:
-    name: Contracts and frontend
+    name: Contracts, backend, and frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
