@@ -679,9 +679,15 @@ export default function App() {
               <progress value={proofProgress.percentage} max={100}>
                 {proofProgress.percentage}%
               </progress>
-              <small>
-                {proofProgress.transactionCount} verified check-in transactions
-              </small>
+              <div className="growth-meta">
+                <small>
+                  {proofProgress.transactionCount} verified check-in transactions
+                </small>
+                <small>
+                  {proofProgress.connectedWallets} connected wallets recorded
+                </small>
+                <small>{proofProgress.statusLabel}</small>
+              </div>
             </div>
             <div className="onboarding-steps">
               {onboardingSteps.map((step) => (

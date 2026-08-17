@@ -417,6 +417,11 @@ button:disabled {
   background: var(--green);
 }
 
+.growth-meta {
+  display: grid;
+  gap: 4px;
+}
+
 .onboarding-steps {
   display: grid;
   gap: 10px;
