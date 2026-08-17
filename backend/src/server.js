@@ -100,7 +100,7 @@ function summarizeFeedback(feedback) {
 function csvCell(value) {
   if (value === null || value === undefined) return "";
 
-  const text = String(value);
+  const text = String(value).replace(/^[=+\-@]/, (prefix) => `'${prefix}`);
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
