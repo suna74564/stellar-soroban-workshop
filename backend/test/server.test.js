@@ -21,6 +21,12 @@ async function request(path, options) {
   return { response, payload };
 }
 
+async function requestText(path) {
+  const response = await fetch(`${baseUrl}${path}`);
+  const payload = await response.text();
+  return { response, payload };
+}
+
 before(async () => {
   await new Promise((resolve) => {
     server = createApp().listen(0, "127.0.0.1", resolve);
@@ -93,6 +99,15 @@ test("analytics endpoints persist product validation events", async () => {
   assert.equal(proof.duplicateTransactionCount, 1);
   assert.equal(proof.remainingWallets, 1);
   assert.equal(proof.requirementMet, false);
+
+  const { response: csvResponse, payload: csv } = await requestText(
+    "/api/interactions/proof.csv",
+  );
+
+  assert.equal(csvResponse.status, 200);
+  assert.match(csvResponse.headers.get("content-type"), /text\/csv/);
+  assert.match(csv, /wallet_address,wallet_used,transaction_hash/);
+  assert.match(csv, new RegExp(TEST_TX_HASH));
 });
 
 test("feedback endpoints validate and summarize user responses", async () => {
