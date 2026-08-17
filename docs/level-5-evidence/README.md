@@ -8,6 +8,10 @@ Collect real Level 5 review artifacts here before the monthly deadline.
 - `proofbull-level-5-feedback-analysis.xlsx`: exported and analyzed Google Form responses.
 - `proofbull-level-5-pitch-deck.pptx`: professional pitch deck.
 - `feedback-iteration-summary.md`: feedback themes, shipped changes, and next improvements.
+- `google-form-setup.md`: exact Google Form field and export checklist.
+- `demo-recording-script.md`: walkthrough script for the required demo video.
+- `growth-playbook.md`: 50-user onboarding and retention plan.
+- `feedback-analysis-guide.md`: response tagging and iteration summary format.
 - Google Form URL in the root `README.md`.
 - Demo video URL in the root `README.md`.
 - Screenshots showing desktop UI, mobile UI, analytics, and transaction activity.
@@ -28,6 +32,14 @@ Each counted user should have:
 - Consent note confirming the user agreed to be included as testnet feedback proof.
 
 Do not include secret keys, recovery phrases, private keys, phone numbers, or sensitive private notes.
+
+## Export Endpoints
+
+When the backend is running, these endpoints help create reviewer-friendly evidence exports:
+
+- `GET /api/interactions/proof.csv`: active transaction wallet proof rows.
+- `GET /api/feedback/export.csv`: in-app feedback rows for workbook analysis.
+- `GET /api/interactions/proof`: JSON proof summary for the monitoring UI.
 
 ## Google Form Fields
 
