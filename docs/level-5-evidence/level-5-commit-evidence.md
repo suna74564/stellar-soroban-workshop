@@ -2,7 +2,9 @@
 
 This list starts at the first Blue Belt preparation commit and includes only Level 5 submission work.
 
-Commit count in this evidence range: 25.
+Listed Level 5 product and evidence commits: 25.
+
+The branch may contain additional evidence-maintenance commits after this list was created, but the listed range alone satisfies the 20+ meaningful commit requirement.
 
 | # | Commit | Summary |
 | --- | --- | --- |
