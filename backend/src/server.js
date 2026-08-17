@@ -97,6 +97,22 @@ function summarizeFeedback(feedback) {
   };
 }
 
+function csvCell(value) {
+  if (value === null || value === undefined) return "";
+
+  const text = String(value);
+  return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+function toCsv(rows, columns) {
+  const header = columns.map((column) => csvCell(column.label)).join(",");
+  const body = rows.map((row) =>
+    columns.map((column) => csvCell(column.value(row))).join(","),
+  );
+
+  return [header, ...body].join("\n");
+}
+
 function summarizeInteractionProof(analytics) {
   const interactions = analytics.filter(
     (event) =>
@@ -288,6 +304,24 @@ export function createApp() {
   app.get("/api/interactions/proof", async (_request, response) => {
     const analytics = await readJsonLines(ANALYTICS_FILE);
     response.json(summarizeInteractionProof(analytics));
+  });
+
+  app.get("/api/interactions/proof.csv", async (_request, response) => {
+    const analytics = await readJsonLines(ANALYTICS_FILE);
+    const proof = summarizeInteractionProof(analytics);
+    const csv = toCsv(proof.latestTransactionProofs, [
+      { label: "created_at", value: (row) => row.createdAt },
+      { label: "wallet_address", value: (row) => row.address },
+      { label: "wallet_used", value: (row) => row.walletName },
+      { label: "transaction_hash", value: (row) => row.txHash },
+      {
+        label: "transaction_url",
+        value: (row) =>
+          `https://stellar.expert/explorer/testnet/tx/${row.txHash}`,
+      },
+    ]);
+
+    response.type("text/csv").send(`${csv}\n`);
   });
 
   app.use((_request, response) => {
