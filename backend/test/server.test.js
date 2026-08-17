@@ -145,4 +145,18 @@ test("feedback endpoints validate and summarize user responses", async () => {
   assert.match(csvResponse.headers.get("content-type"), /text\/csv/);
   assert.match(csv, /created_at,wallet_address,category,rating,feedback/);
   assert.match(csv, /The check-in flow is clear/);
+
+  await request("/api/feedback", {
+    body: JSON.stringify({
+      category: "trust",
+      message: "=2+2",
+      rating: 3,
+    }),
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+  });
+
+  const { payload: guardedCsv } = await requestText("/api/feedback/export.csv");
+
+  assert.match(guardedCsv, /'=2\+2/);
 });
