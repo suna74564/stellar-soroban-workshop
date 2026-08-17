@@ -18,6 +18,7 @@ const FEEDBACK_FILE = join(DATA_DIR, "feedback.jsonl");
 const MAX_EVENT_NAME_LENGTH = 64;
 const MAX_FEEDBACK_LENGTH = 1200;
 const LEVEL_TARGET_WALLETS = Number(process.env.LEVEL_TARGET_WALLETS ?? 50);
+const STELLAR_TX_HASH_PATTERN = /^[a-f0-9]{64}$/i;
 
 function isValidEventName(value) {
   return (
@@ -34,6 +35,13 @@ function normalizeAddress(value) {
   }
 
   return value;
+}
+
+function normalizeTransactionHash(value) {
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  return STELLAR_TX_HASH_PATTERN.test(trimmed) ? trimmed.toLowerCase() : null;
 }
 
 function cleanMetadata(value) {
@@ -191,10 +199,7 @@ export function createApp() {
         typeof request.body?.walletName === "string"
           ? request.body.walletName.slice(0, 80)
           : null,
-      txHash:
-        typeof request.body?.txHash === "string"
-          ? request.body.txHash.slice(0, 128)
-          : null,
+      txHash: normalizeTransactionHash(request.body?.txHash),
       sessionId:
         typeof request.body?.sessionId === "string"
           ? request.body.sessionId.slice(0, 80)
@@ -255,10 +260,7 @@ export function createApp() {
           : "general",
       rating,
       message,
-      txHash:
-        typeof request.body?.txHash === "string"
-          ? request.body.txHash.slice(0, 128)
-          : null,
+      txHash: normalizeTransactionHash(request.body?.txHash),
       createdAt: new Date().toISOString(),
     };
 

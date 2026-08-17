@@ -9,6 +9,8 @@ process.env.DATA_DIR = await mkdtemp(join(tmpdir(), "proofbull-api-"));
 process.env.LEVEL_TARGET_WALLETS = "2";
 
 const { createApp } = await import("../src/server.js");
+const TEST_TX_HASH =
+  "cf4bdadb55d15cb720691a7b580f7bc18f9f9aa986a4ff229fb2fb7a08f48b36";
 
 let server;
 let baseUrl;
@@ -51,7 +53,7 @@ test("analytics endpoints persist product validation events", async () => {
     {
       eventName: "checkin_success",
       address,
-      txHash: "abc123",
+      txHash: TEST_TX_HASH,
       metadata: { walletCheckins: 1 },
     },
     { eventName: "wallet_connected", address: secondAddress, walletName: "xBull" },
