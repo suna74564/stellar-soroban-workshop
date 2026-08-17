@@ -56,6 +56,12 @@ test("analytics endpoints persist product validation events", async () => {
       txHash: TEST_TX_HASH,
       metadata: { walletCheckins: 1 },
     },
+    {
+      eventName: "checkin_success",
+      address: secondAddress,
+      txHash: TEST_TX_HASH,
+      metadata: { walletCheckins: 1 },
+    },
     { eventName: "wallet_connected", address: secondAddress, walletName: "xBull" },
     { eventName: "app_error", metadata: { type: "network" } },
   ];
@@ -72,10 +78,10 @@ test("analytics endpoints persist product validation events", async () => {
 
   const { payload: summary } = await request("/api/analytics/summary");
 
-  assert.equal(summary.totalEvents, 4);
+  assert.equal(summary.totalEvents, 5);
   assert.equal(summary.uniqueWallets, 2);
   assert.equal(summary.walletConnections, 2);
-  assert.equal(summary.checkIns, 1);
+  assert.equal(summary.checkIns, 2);
   assert.equal(summary.errors, 1);
 
   const { payload: proof } = await request("/api/interactions/proof");
@@ -84,6 +90,8 @@ test("analytics endpoints persist product validation events", async () => {
   assert.equal(proof.uniqueWallets, 2);
   assert.equal(proof.activeWallets, 1);
   assert.equal(proof.transactionCount, 1);
+  assert.equal(proof.duplicateTransactionCount, 1);
+  assert.equal(proof.remainingWallets, 1);
   assert.equal(proof.requirementMet, false);
 });
 

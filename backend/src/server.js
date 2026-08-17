@@ -106,18 +106,29 @@ function summarizeInteractionProof(analytics) {
   const transactionInteractions = interactions.filter(
     (event) => event.eventName === "checkin_success" && event.txHash,
   );
+  const seenTransactionHashes = new Set();
+  const uniqueTransactionProofs = transactionInteractions.filter((event) => {
+    if (seenTransactionHashes.has(event.txHash)) return false;
+    seenTransactionHashes.add(event.txHash);
+    return true;
+  });
   const uniqueWallets = new Set(interactions.map((event) => event.address));
   const activeWallets = new Set(
-    transactionInteractions.map((event) => event.address),
+    uniqueTransactionProofs.map((event) => event.address),
   );
+  const remainingWallets = Math.max(LEVEL_TARGET_WALLETS - activeWallets.size, 0);
 
   return {
     level: "Level 5",
     minimumRequiredWallets: LEVEL_TARGET_WALLETS,
     uniqueWallets: uniqueWallets.size,
     activeWallets: activeWallets.size,
-    transactionCount: transactionInteractions.length,
+    transactionCount: uniqueTransactionProofs.length,
+    duplicateTransactionCount:
+      transactionInteractions.length - uniqueTransactionProofs.length,
+    remainingWallets,
     requirementMet: activeWallets.size >= LEVEL_TARGET_WALLETS,
+    latestTransactionProofs: uniqueTransactionProofs.slice(-50).reverse(),
     latestInteractions: interactions.slice(-50).reverse(),
   };
 }
