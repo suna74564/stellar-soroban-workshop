@@ -301,6 +301,20 @@ export function createApp() {
     response.json(summarizeFeedback(feedback));
   });
 
+  app.get("/api/feedback/export.csv", async (_request, response) => {
+    const feedback = await readJsonLines(FEEDBACK_FILE);
+    const csv = toCsv(feedback, [
+      { label: "created_at", value: (row) => row.createdAt },
+      { label: "wallet_address", value: (row) => row.address },
+      { label: "category", value: (row) => row.category },
+      { label: "rating", value: (row) => row.rating },
+      { label: "feedback", value: (row) => row.message },
+      { label: "transaction_hash", value: (row) => row.txHash },
+    ]);
+
+    response.type("text/csv").send(`${csv}\n`);
+  });
+
   app.get("/api/interactions/proof", async (_request, response) => {
     const analytics = await readJsonLines(ANALYTICS_FILE);
     response.json(summarizeInteractionProof(analytics));
