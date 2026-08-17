@@ -9,10 +9,10 @@ The Level 5 version focuses on user growth and product iteration: 50-user Testne
 ## Live Demo
 
 - GitHub Pages: <https://suna74564.github.io/stellar-soroban-workshop/>
-- Google Form: TODO - add the live Google Form URL after creating it.
+- Google Form: Pending live URL - create it with [docs/level-5-evidence/google-form-setup.md](docs/level-5-evidence/google-form-setup.md), then paste the URL here.
 - Exported Excel sheet: [docs/level-5-evidence/proofbull-level-5-feedback-analysis.xlsx](docs/level-5-evidence/proofbull-level-5-feedback-analysis.xlsx)
 - Pitch deck/PPT: [docs/level-5-evidence/proofbull-level-5-pitch-deck.pptx](docs/level-5-evidence/proofbull-level-5-pitch-deck.pptx)
-- Demo video: TODO - add the full product walkthrough URL.
+- Demo video: Pending live URL - record it with [docs/level-5-evidence/demo-recording-script.md](docs/level-5-evidence/demo-recording-script.md), then paste the URL here.
 
 ## About Me
 
@@ -80,9 +80,24 @@ Level 5 requires 50+ real Testnet users with active transaction proof. Use these
 - Submission guide: [docs/level-5-submission.md](docs/level-5-submission.md)
 - Evidence pack: [docs/level-5-evidence/](docs/level-5-evidence/)
 - Wallet transaction tracker: [docs/level-5-evidence/user-wallet-interactions.csv](docs/level-5-evidence/user-wallet-interactions.csv)
+- Google Form setup: [docs/level-5-evidence/google-form-setup.md](docs/level-5-evidence/google-form-setup.md)
+- Growth playbook: [docs/level-5-evidence/growth-playbook.md](docs/level-5-evidence/growth-playbook.md)
+- Demo recording script: [docs/level-5-evidence/demo-recording-script.md](docs/level-5-evidence/demo-recording-script.md)
 - Feedback iteration summary: [docs/level-5-evidence/feedback-iteration-summary.md](docs/level-5-evidence/feedback-iteration-summary.md)
 
 The Google Form should collect name, email, Stellar Testnet wallet address, wallet used, transaction hash, transaction URL, product rating, feedback, and consent. Export the responses to the Excel workbook above before submitting.
+
+Do not resubmit Level 5 until the Google Form, demo video, 50+ unique active wallet rows, and real transaction screenshots are added. The evidence templates in this repository are intentionally marked as collection tools until real user data is present.
+
+### Proof Export Endpoints
+
+When the backend is running, use these endpoints for analysis and record-keeping:
+
+```text
+GET /api/interactions/proof
+GET /api/interactions/proof.csv
+GET /api/feedback/export.csv
+```
 
 ## Feedback-Based Improvement Plan
 
