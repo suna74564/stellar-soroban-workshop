@@ -84,6 +84,7 @@ Level 5 requires 50+ real Testnet users with active transaction proof. Use these
 - Growth playbook: [docs/level-5-evidence/growth-playbook.md](docs/level-5-evidence/growth-playbook.md)
 - Demo recording script: [docs/level-5-evidence/demo-recording-script.md](docs/level-5-evidence/demo-recording-script.md)
 - Feedback iteration summary: [docs/level-5-evidence/feedback-iteration-summary.md](docs/level-5-evidence/feedback-iteration-summary.md)
+- Level 5 commit evidence: [docs/level-5-evidence/level-5-commit-evidence.md](docs/level-5-evidence/level-5-commit-evidence.md)
 
 The Google Form should collect name, email, Stellar Testnet wallet address, wallet used, transaction hash, transaction URL, product rating, feedback, and consent. Export the responses to the Excel workbook above before submitting.
 
