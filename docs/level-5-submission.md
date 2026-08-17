@@ -16,10 +16,10 @@ The Level 5 version adds:
 
 - App: https://suna74564.github.io/stellar-soroban-workshop/
 - Repository: https://github.com/suna74564/stellar-soroban-workshop
-- Google Form: TODO - add the live Google Form URL.
+- Google Form: Pending live URL. Create it with `docs/level-5-evidence/google-form-setup.md`.
 - Exported Excel sheet: `docs/level-5-evidence/proofbull-level-5-feedback-analysis.xlsx`
 - Pitch deck: `docs/level-5-evidence/proofbull-level-5-pitch-deck.pptx`
-- Demo video: TODO - add the full product walkthrough URL.
+- Demo video: Pending live URL. Record it with `docs/level-5-evidence/demo-recording-script.md`.
 
 ## Contract Addresses
 
@@ -45,6 +45,21 @@ Use `docs/level-5-evidence/user-wallet-interactions.csv` to track wallet and tra
 - Each counted user has an on-chain Testnet transaction hash.
 - Each transaction hash links to Stellar Expert or another verifiable Testnet explorer.
 - Google Form responses have been exported to the Excel workbook.
+
+Useful backend exports:
+
+```text
+GET /api/interactions/proof
+GET /api/interactions/proof.csv
+GET /api/feedback/export.csv
+```
+
+Supporting evidence guides:
+
+- `docs/level-5-evidence/google-form-setup.md`
+- `docs/level-5-evidence/growth-playbook.md`
+- `docs/level-5-evidence/feedback-analysis-guide.md`
+- `docs/level-5-evidence/demo-recording-script.md`
 
 ## Demo Flow
 
