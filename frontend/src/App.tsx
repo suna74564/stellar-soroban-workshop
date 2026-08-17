@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clock3,
   ClipboardCheck,
+  Copy,
   ExternalLink,
   HeartPulse,
   Loader2,
@@ -114,6 +115,7 @@ export default function App() {
   const [feedbackStatus, setFeedbackStatus] = useState<
     "idle" | "submitting" | "sent" | "failed"
   >("idle");
+  const [copiedHash, setCopiedHash] = useState(false);
   const [monitoring, setMonitoring] = useState<MonitoringSummary | null>(null);
   const [monitoringStatus, setMonitoringStatus] = useState<
     "loading" | "online" | "offline"
@@ -550,6 +552,20 @@ export default function App() {
     }
   }
 
+  async function copyTransactionHash() {
+    if (!transaction.hash || !navigator.clipboard) return;
+
+    await navigator.clipboard.writeText(transaction.hash);
+    setCopiedHash(true);
+    window.setTimeout(() => setCopiedHash(false), 1800);
+    trackEvent({
+      eventName: "transaction_hash_copied",
+      address,
+      walletName: wallet?.walletName,
+      txHash: transaction.hash,
+    });
+  }
+
   return (
     <main className="app-frame">
       {error && (
@@ -872,10 +888,21 @@ export default function App() {
               <strong>{transaction.label}</strong>
               <small>{status}</small>
               {transaction.hash && (
-                <a href={transactionUrl(transaction.hash)} target="_blank" rel="noreferrer">
-                  {shortAddress(transaction.hash)}
-                  <ExternalLink size={14} />
-                </a>
+                <div className="transaction-actions">
+                  <a href={transactionUrl(transaction.hash)} target="_blank" rel="noreferrer">
+                    {shortAddress(transaction.hash)}
+                    <ExternalLink size={14} />
+                  </a>
+                  <button
+                    className="copy-hash-button"
+                    onClick={copyTransactionHash}
+                    title="Copy transaction hash"
+                    type="button"
+                  >
+                    <Copy size={14} />
+                    {copiedHash ? "Copied" : "Copy hash"}
+                  </button>
+                </div>
               )}
             </div>
           </article>

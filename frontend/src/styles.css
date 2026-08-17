@@ -755,6 +755,28 @@ button:disabled {
   color: var(--green);
 }
 
+.transaction-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.copy-hash-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
 .total-proof {
   display: grid;
   align-content: center;
