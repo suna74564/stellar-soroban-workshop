@@ -136,4 +136,13 @@ test("feedback endpoints validate and summarize user responses", async () => {
   assert.equal(summary.totalFeedback, 1);
   assert.equal(summary.averageRating, 5);
   assert.deepEqual(summary.categories, { usability: 1 });
+
+  const { response: csvResponse, payload: csv } = await requestText(
+    "/api/feedback/export.csv",
+  );
+
+  assert.equal(csvResponse.status, 200);
+  assert.match(csvResponse.headers.get("content-type"), /text\/csv/);
+  assert.match(csv, /created_at,wallet_address,category,rating,feedback/);
+  assert.match(csv, /The check-in flow is clear/);
 });
